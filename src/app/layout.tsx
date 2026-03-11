@@ -24,8 +24,11 @@ export const metadata: Metadata = {
     "The all-in-one platform to grow your business. Automate, integrate, and scale with ease.",
   keywords: ["SaaS", "automation", "integrations", "business"],
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
     apple: "/apple-icon.png",
   },
   openGraph: {

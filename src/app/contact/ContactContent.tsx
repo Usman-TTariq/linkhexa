@@ -118,16 +118,16 @@ export default function ContactContent() {
                     <h3 className="font-semibold text-white">{card.title}</h3>
                   </div>
                   <ul className="mt-4 space-y-2">
-                    {card.items.map((item, j) => (
+                    {card.items.map((item: { href?: string; text: string; label?: string; external?: boolean }, j) => (
                       <li key={j}>
-                        {"href" in item ? (
+                        {item.href ? (
                           <a
                             href={item.href}
-                            target={"external" in item && item.external ? "_blank" : undefined}
-                            rel={"external" in item && item.external ? "noopener noreferrer" : undefined}
+                            target={item.external ? "_blank" : undefined}
+                            rel={item.external ? "noopener noreferrer" : undefined}
                             className="text-sm text-indigo-400 transition-colors hover:text-indigo-300"
                           >
-                            {"label" in item && item.label && `${item.label}: `}
+                            {item.label && `${item.label}: `}
                             {item.text}
                           </a>
                         ) : (
