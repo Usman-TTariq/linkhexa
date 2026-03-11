@@ -54,7 +54,7 @@ export default function Integrations() {
             Works with the tools you already use
           </h2>
           <p className="mt-3 text-base text-zinc-400 sm:mt-4 sm:text-lg">
-            Connect 100+ apps and automate workflows across your entire stack.
+            From analytics to payment tools, automate tracking and reporting so you can focus on promoting campaigns.
           </p>
         </motion.div>
 

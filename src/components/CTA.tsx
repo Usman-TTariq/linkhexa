@@ -1,18 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function CTA() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) setSubmitted(true);
-  };
-
   return (
     <section id="contact" className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -44,32 +36,12 @@ export default function CTA() {
               Join thousands of teams already using LinkHexa. No credit card
               required.
             </p>
-            {submitted ? (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-6 text-indigo-400"
-              >
-                Thanks! We&apos;ll be in touch.
-              </motion.p>
-            ) : (
-              <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4 sm:justify-center">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="min-w-0 flex-1 border border-white/10 bg-white/5 px-4 py-3 text-base text-white placeholder-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 sm:max-w-sm sm:py-3.5"
-                />
-                <button
-                  type="submit"
-                  className="w-full border-2 border-indigo-500 bg-indigo-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-indigo-500 hover:border-indigo-400 sm:w-auto sm:px-8 sm:py-3.5"
-                >
-                  Get early access
-                </button>
-              </form>
-            )}
+            <Link
+              href="/get-started"
+              className="mt-6 inline-block w-full border-2 border-indigo-500 bg-indigo-600 px-8 py-3.5 text-center font-semibold text-white transition-colors hover:bg-indigo-500 hover:border-indigo-400 sm:mt-8 sm:w-auto sm:px-10"
+            >
+              Get Started
+            </Link>
           </div>
         </motion.div>
       </div>
