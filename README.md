@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LinkHexa
 
-## Getting Started
+A modern SaaS landing page inspired by Affilza, Stripe, Linear, and Vercel. Built with Next.js (App Router), React, Tailwind CSS, and Framer Motion.
 
-First, run the development server:
+## Tech stack
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **Tailwind CSS v4**
+- **Framer Motion** – smooth animations and micro-interactions
+- **TypeScript**
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── globals.css    # Tailwind + design tokens (glass, gradients, glow)
+│   ├── layout.tsx     # Root layout & metadata
+│   └── page.tsx       # Landing page (composes all sections)
+└── components/
+    ├── Navbar.tsx       # Sticky nav, mobile hamburger
+    ├── Hero.tsx         # Headline, CTAs, dashboard mockup
+    ├── Features.tsx     # 6 feature cards
+    ├── HowItWorks.tsx   # 3-step timeline
+    ├── Integrations.tsx # Logo grid
+    ├── Pricing.tsx     # 3 plans, monthly/yearly toggle
+    ├── Testimonials.tsx # User review cards
+    ├── BlogPreview.tsx  # 3 blog cards
+    ├── CTA.tsx          # Email signup form
+    └── Footer.tsx       # Links & social
+```
 
-## Learn More
+## Design
 
-To learn more about Next.js, take a look at the following resources:
+- Dark SaaS UI with gradient backgrounds and glassmorphism cards
+- Indigo/violet accent palette and glow effects
+- Responsive layout (mobile-first)
+- Framer Motion for scroll-in animations, hover states, and the mobile menu
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` – development server
+- `npm run build` – production build
+- `npm run start` – run production build
+- `npm run lint` – ESLint
