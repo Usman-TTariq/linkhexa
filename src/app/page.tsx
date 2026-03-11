@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import HeroLogoCarousel from "@/components/HeroLogoCarousel";
 import Features from "@/components/Features";
 import ForAdvertisers from "@/components/ForAdvertisers";
 import ForPublishers from "@/components/ForPublishers";
@@ -19,6 +20,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <HeroLogoCarousel />
         <Features />
         <ForAdvertisers />
         <HowItWorks />

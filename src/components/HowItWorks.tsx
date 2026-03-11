@@ -37,7 +37,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="relative overflow-hidden py-24 sm:py-32">
+    <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       {/* Purple disperse spots - left & right */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-1/4 h-[350px] w-[350px] rounded-full bg-indigo-500/20 blur-[120px]" />
@@ -91,11 +91,11 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           className="mx-auto max-w-2xl text-center"
         >
-          <p className="text-sm font-medium uppercase tracking-widest text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-indigo-400 sm:text-sm">
             How it works
           </p>
           <h2
-            className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl"
+            className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
             Get started in five simple steps
@@ -105,12 +105,12 @@ export default function HowItWorks() {
           </p>
         </motion.div>
 
-        <div className="mt-10">
+        <div className="mt-8 sm:mt-10">
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-500/50 via-indigo-500/30 to-transparent md:left-1/2 md:-translate-x-px" />
+            <div className="absolute left-5 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-500/50 via-indigo-500/30 to-transparent sm:left-6 md:left-1/2 md:-translate-x-px" />
 
-            <div className="space-y-6 md:space-y-8">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
               {steps.map((step, i) => {
                 const isEven = i % 2 === 0;
                 return (

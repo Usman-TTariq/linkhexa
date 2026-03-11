@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     "The all-in-one platform to grow your business. Automate, integrate, and scale with ease.",
   keywords: ["SaaS", "automation", "integrations", "business"],
   icons: {
-    icon: "/LinkHexa Favicon Svg.svg",
-    shortcut: "/LinkHexa Favicon Svg.svg",
-    apple: "/LinkHexa favicon Png.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-icon.png",
   },
   openGraph: {
     title: "LinkHexa | Modern SaaS Platform",
@@ -45,10 +45,28 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
         suppressHydrationWarning
       >
-        {/* Strip extension-injected attrs (e.g. bis_skin_checked) before hydration to reduce mismatch warnings */}
+        {/* Strip extension-injected attrs (e.g. bis_skin_checked from password managers) so hydration matches */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{document.querySelectorAll('[bis_skin_checked]').forEach(function(e){e.removeAttribute('bis_skin_checked');});}catch(e){}})();`,
+            __html: `
+(function stripExtensionAttrs() {
+  try {
+    var strip = function() {
+      document.querySelectorAll('[bis_skin_checked]').forEach(function(el) { el.removeAttribute('bis_skin_checked'); });
+    };
+    strip();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', strip);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      strip();
+      var obs = new MutationObserver(function() { strip(); });
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['bis_skin_checked'], subtree: true });
+      setTimeout(function() { obs.disconnect(); }, 5000);
+    });
+  } catch (e) {}
+})();
+            `.trim(),
           }}
         />
         <div suppressHydrationWarning>

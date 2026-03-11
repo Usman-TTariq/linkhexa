@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+const heroImages = [
+  { src: "/20190417194749-GettyImages-1128554405-crop.jpeg", alt: "Business network and collaboration" },
+  { src: "/Affiliate-networks-600x300.png", alt: "Affiliate networks" },
+  { src: "/thumbnail-affiliate-networks-04.jpg", alt: "Affiliate networks and integrations" },
+];
 
 const stats = [
   { value: "1,247+", label: "Advertisers" },
@@ -96,14 +103,12 @@ export default function AboutContent() {
               transition={{ delay: 0.3 }}
               className="mt-12 grid gap-4 sm:grid-cols-3"
             >
-              {[1, 2, 3].map((i) => (
+              {heroImages.map((img, i) => (
                 <div
-                  key={i}
+                  key={img.src}
                   className="relative overflow-hidden border border-white/10 bg-zinc-900/60 backdrop-blur-sm sm:aspect-video"
                 >
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-violet-500/10">
-                    <svg className="h-14 w-14 text-indigo-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                  </div>
+                  <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="(max-width: 640px) 100vw, 33vw" />
                 </div>
               ))}
             </motion.div>
@@ -152,9 +157,7 @@ export default function AboutContent() {
                 viewport={{ once: true }}
                 className="relative aspect-video overflow-hidden border border-white/10 bg-zinc-900/60"
               >
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-violet-500/10">
-                  <svg className="h-24 w-24 text-indigo-500/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                </div>
+                <Image src="/20190417194749-GettyImages-1128554405-crop.jpeg" alt="Our approach: connected network and collaboration" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
               </motion.div>
               <div>
                 <p className="text-sm font-medium uppercase tracking-widest text-indigo-400">Our Approach</p>
@@ -298,9 +301,7 @@ export default function AboutContent() {
                 viewport={{ once: true }}
                 className="relative aspect-[9/16] max-h-[400px] w-full max-w-[280px] justify-self-center overflow-hidden border border-white/10 bg-zinc-900/60 lg:justify-self-end"
               >
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-violet-500/10">
-                  <svg className="h-16 w-16 text-indigo-500/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 13h2a2 2 0 002-2V9a2 2 0 00-2-2H3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2a2 2 0 01-2-2V5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z" /></svg>
-                </div>
+                <Image src="/meeting-background-o9k6b5wkuevvy1f7.jpg" alt="Our focus and roadmap" fill className="object-cover object-center" sizes="280px" />
               </motion.div>
             </div>
           </div>
@@ -340,7 +341,7 @@ export default function AboutContent() {
                 </ul>
               </div>
               <Link
-                href="/#contact"
+                href="/get-started"
                 className="shrink-0 bg-indigo-600 px-8 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500"
               >
                 Get started now

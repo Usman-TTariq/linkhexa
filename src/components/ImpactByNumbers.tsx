@@ -69,7 +69,7 @@ function AnimatedNumber({
 
   return (
     <div ref={ref}>
-      <p className="text-2xl font-bold text-white sm:text-3xl">{formatAnimated(display, format)}</p>
+      <p className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">{formatAnimated(display, format)}</p>
       <p className="mt-0.5 text-sm text-zinc-500">{label}</p>
     </div>
   );
@@ -151,7 +151,7 @@ function TrendLineChart() {
 
 export default function ImpactByNumbers() {
   return (
-    <section id="impact" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="impact" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute right-0 top-1/4 h-[300px] w-[300px] rounded-full bg-indigo-500/15 blur-[100px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_80%_20%,rgba(99,102,241,0.06),transparent)]" />
@@ -164,7 +164,7 @@ export default function ImpactByNumbers() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 backdrop-blur-sm sm:p-8"
+            className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 backdrop-blur-sm sm:p-6 lg:p-8"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">
               Global Metrics
@@ -197,7 +197,7 @@ export default function ImpactByNumbers() {
                 </svg>
               </span>
               <span
-                className="rounded-2xl border-2 border-indigo-400/70 bg-black/30 px-5 py-2.5 text-2xl font-bold tracking-tight text-white sm:text-3xl"
+                className="rounded-2xl border-2 border-indigo-400/70 bg-black/30 px-4 py-2 text-xl font-bold tracking-tight text-white sm:px-5 sm:py-2.5 sm:text-2xl lg:text-3xl"
                 style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
               >
                 Impact by the numbers
@@ -219,7 +219,7 @@ export default function ImpactByNumbers() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+          className="mt-10 grid gap-3 sm:grid-cols-2 sm:gap-4 sm:mt-14 lg:grid-cols-3 xl:grid-cols-6"
         >
           {statCards.map((card) => (
             <AnimatedStatCard

@@ -68,8 +68,8 @@ function AnimatedStat({
         : display.toLocaleString() + suffix);
 
   return (
-    <div ref={ref} className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 text-center backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-indigo-500/20">
-      <p className="text-3xl font-bold text-indigo-400 sm:text-4xl">{formatted}</p>
+    <div ref={ref} className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 text-center backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-indigo-500/20 sm:p-6">
+      <p className="text-2xl font-bold text-indigo-400 sm:text-3xl lg:text-4xl">{formatted}</p>
       <p className="mt-1 text-sm text-zinc-500">{label}</p>
     </div>
   );
@@ -126,7 +126,7 @@ function PublisherBarChart() {
 
 export default function ForPublishers() {
   return (
-    <section id="publishers" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="publishers" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       {/* Glow - left side this time for layout variation */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-1/4 h-[320px] w-[320px] rounded-full bg-violet-500/15 blur-[100px]" />
@@ -135,7 +135,7 @@ export default function ForPublishers() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Layout: Right = charts, Left = text (swapped vs For Advertisers) */}
-        <div className="grid gap-12 lg:grid-cols-[0.58fr_0.42fr] lg:gap-14">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-[0.58fr_0.42fr] lg:gap-14">
           {/* Left: For Publishers content */}
           <div className="order-2 flex flex-col justify-center lg:order-1">
             <motion.div
@@ -156,7 +156,7 @@ export default function ForPublishers() {
               </div>
             </motion.div>
             <p
-              className="mt-3 text-lg font-medium text-zinc-300"
+              className="mt-3 text-base font-medium text-zinc-300 sm:text-lg"
               style={{ fontFamily: "var(--font-libre-baskerville), serif" }}
             >
               Monetize Your Content with Ease
@@ -165,7 +165,7 @@ export default function ForPublishers() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-5 text-base leading-relaxed text-zinc-400"
+              className="mt-4 text-sm leading-relaxed text-zinc-400 sm:mt-5 sm:text-base"
             >
               Turn your audience into revenue. Partner with trusted brands, track every conversion, and get paid on time. Our platform is built to help publishers grow with clear insights and reliable payouts.
             </motion.p>
@@ -173,7 +173,7 @@ export default function ForPublishers() {
             <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400/90">
               Why publishers choose us
             </p>
-            <ul className="mt-5 space-y-6">
+            <ul className="mt-4 space-y-4 sm:mt-5 sm:space-y-6">
               {whyChooseUs.map((item, i) => (
                 <motion.li
                   key={item.title}

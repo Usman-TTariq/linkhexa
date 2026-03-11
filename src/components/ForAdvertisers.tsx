@@ -78,8 +78,8 @@ function AnimatedStat({
         : display.toLocaleString() + suffix);
 
   return (
-    <div ref={ref} className="glass rounded-2xl border border-white/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-indigo-500/20">
-      <p className="text-3xl font-bold text-white sm:text-4xl">{formatted}</p>
+    <div ref={ref} className="glass rounded-2xl border border-white/5 p-4 text-center transition-all hover:-translate-y-1 hover:border-indigo-500/20 sm:p-6">
+      <p className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">{formatted}</p>
       <p className="mt-1 text-sm text-zinc-500">{label}</p>
     </div>
   );
@@ -138,7 +138,7 @@ function TrafficChart() {
 
 export default function ForAdvertisers() {
   return (
-    <section id="advertisers" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="advertisers" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       {/* Soft glow right side */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-32 top-1/3 h-[350px] w-[350px] rounded-full bg-violet-500/15 blur-[100px]" />
@@ -146,7 +146,7 @@ export default function ForAdvertisers() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[0.42fr_0.58fr] lg:gap-14">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-[0.42fr_0.58fr] lg:gap-14">
           {/* Left: Chart cards - slightly narrower column, lighter card bg */}
           <div className="space-y-5">
             <motion.div
@@ -191,12 +191,12 @@ export default function ForAdvertisers() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-6 text-base leading-relaxed text-zinc-400"
+              className="mt-4 text-sm leading-relaxed text-zinc-400 sm:mt-6 sm:text-base"
             >
               For Advertisers — Partner with performance-driven brands. Grow your business with campaigns designed to deliver measurable results. Our platform connects you with high-quality publishers, gives you actionable insights, and makes your marketing budget work harder.
             </motion.p>
 
-            <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400/90">
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400/90 sm:mt-10">
               Why brands trust us
             </p>
             <ul className="mt-5 space-y-6">
@@ -225,17 +225,17 @@ export default function ForAdvertisers() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16"
+          className="mt-10 sm:mt-16"
         >
-          <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-zinc-500 sm:mb-4 sm:text-sm">
             Campaign types
           </p>
-          <div className="glass rounded-2xl border border-white/5 p-6 sm:p-8">
-            <div className="flex flex-wrap justify-center gap-3">
+          <div className="glass rounded-2xl border border-white/5 p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {serviceTags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-white"
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-zinc-300 transition-colors hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-white sm:px-4 sm:py-2.5 sm:text-sm"
                 >
                   {tag}
                 </span>
@@ -249,7 +249,7 @@ export default function ForAdvertisers() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-10 grid gap-6 sm:grid-cols-3"
+          className="mt-8 grid gap-4 sm:grid-cols-3 sm:gap-6"
         >
           {stats.map((stat) => (
             <AnimatedStat

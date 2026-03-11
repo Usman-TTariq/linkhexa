@@ -35,7 +35,7 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="faq" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/3 h-[280px] w-[280px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[100px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(99,102,241,0.06),transparent)]" />
@@ -57,7 +57,7 @@ export default function FAQ() {
           >
             Frequently asked questions
           </h2>
-          <p className="mt-4 text-zinc-400">
+          <p className="mt-3 text-sm text-zinc-400 sm:mt-4 sm:text-base">
             Everything you need to know about our platform and affiliate programs.
           </p>
         </motion.div>
@@ -75,9 +75,9 @@ export default function FAQ() {
               <button
                 type="button"
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:gap-4 sm:px-5 sm:py-4"
               >
-                <span className="font-semibold text-white">{faq.question}</span>
+                <span className="text-left text-sm font-semibold text-white sm:text-base">{faq.question}</span>
                 <span
                   className={`shrink-0 text-indigo-400 transition-transform duration-200 ${
                     openIndex === i ? "rotate-180" : ""
@@ -97,7 +97,7 @@ export default function FAQ() {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <p className="border-t border-white/5 px-5 py-4 text-sm leading-relaxed text-zinc-400">
+                    <p className="border-t border-white/5 px-4 py-3 text-sm leading-relaxed text-zinc-400 sm:px-5 sm:py-4">
                       {faq.answer}
                     </p>
                   </motion.div>

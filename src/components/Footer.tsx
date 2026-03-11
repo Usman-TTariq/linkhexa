@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 const exploreMore = [
-  { label: "Advertisers", href: "#advertisers" },
-  { label: "Publishers", href: "#publishers" },
+  { label: "Advertisers", href: "/advertisers" },
+  { label: "Publishers", href: "/publishers" },
   { label: "About", href: "/about" },
-  { label: "Blog", href: "#blog" },
-  { label: "Contact", href: "#contact" },
+  { label: "Blog", href: "/#blog" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const legalInfo = [
@@ -32,7 +32,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-white/5 py-16">
+    <footer className="relative overflow-hidden border-t border-white/5 py-12 sm:py-16">
       {/* Purple spots + faded Link / Hexa (same as HowItWorks, TrustAndPartnerships) */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-1/4 h-[350px] w-[350px] rounded-full bg-indigo-500/20 blur-[120px]" />
@@ -42,7 +42,7 @@ export default function Footer() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_0%_50%,rgba(99,102,241,0.1),transparent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_100%_50%,rgba(99,102,241,0.08),transparent)]" />
         <div
-          className="absolute left-0 top-0 flex h-full w-[min(28%,220px)] items-center pl-4 sm:pl-6 md:pl-8"
+          className="absolute left-0 top-0 hidden h-full w-[min(28%,220px)] items-center pl-4 sm:flex sm:pl-6 md:pl-8"
           style={{
             maskImage: "linear-gradient(to right, black 20%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(to right, black 20%, transparent 100%)",
@@ -60,7 +60,7 @@ export default function Footer() {
           </span>
         </div>
         <div
-          className="absolute right-0 top-0 flex h-full w-[min(28%,220px)] items-center justify-end pr-4 sm:pr-6 md:pr-8"
+          className="absolute right-0 top-0 hidden h-full w-[min(28%,220px)] items-center justify-end pr-4 sm:flex sm:pr-6 md:pr-8"
           style={{
             maskImage: "linear-gradient(to left, black 20%, transparent 100%)",
             WebkitMaskImage: "linear-gradient(to left, black 20%, transparent 100%)",
@@ -80,21 +80,21 @@ export default function Footer() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid gap-8 sm:gap-10 md:grid-cols-2 md:gap-12 lg:grid-cols-4">
+          <div className="text-center sm:text-left lg:col-span-1">
             <Link href="/" className="inline-block">
               <Image
                 src="/LinkHexa Logo Svg.svg"
                 alt="LinkHexa"
                 width={140}
                 height={44}
-                className="h-9 w-auto"
+                className="h-8 w-auto sm:h-9"
               />
             </Link>
-            <p className="mt-4 max-w-xs text-sm text-zinc-500">
+            <p className="mx-auto mt-3 max-w-xs text-sm text-zinc-500 sm:mx-0 sm:mt-4">
               The leading affiliate marketing platform connecting publishers and merchants worldwide.
             </p>
-            <div className="mt-6 flex gap-3">
+            <div className="mt-5 flex justify-center gap-3 sm:justify-start sm:mt-6">
               {socials.map((s) => (
                 <a
                   key={s.name}
@@ -107,7 +107,7 @@ export default function Footer() {
               ))}
             </div>
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="text-sm font-semibold text-white">Explore More</h3>
             <ul className="mt-4 space-y-3">
               {exploreMore.map((link) => (
@@ -122,7 +122,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="text-sm font-semibold text-white">Legal Information</h3>
             <ul className="mt-4 space-y-3">
               {legalInfo.map((link) => (
@@ -137,21 +137,21 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="text-sm font-semibold text-white">Get Support</h3>
-            <ul className="mt-4 space-y-3 text-sm text-zinc-500">
+            <ul className="mt-4 space-y-3 text-xs text-zinc-500 sm:text-sm">
               <li>
-                <a href="mailto:partner@linkhexa.com" className="transition-colors hover:text-white">
+                <a href="mailto:partner@linkhexa.com" className="break-all transition-colors hover:text-white">
                   partner@linkhexa.com
                 </a>
               </li>
               <li>
-                <a href="mailto:support@linkhexa.com" className="transition-colors hover:text-white">
+                <a href="mailto:support@linkhexa.com" className="break-all transition-colors hover:text-white">
                   support@linkhexa.com
                 </a>
               </li>
               <li>
-                <a href="mailto:legal@linkhexa.com" className="transition-colors hover:text-white">
+                <a href="mailto:legal@linkhexa.com" className="break-all transition-colors hover:text-white">
                   legal@linkhexa.com
                 </a>
               </li>
@@ -167,7 +167,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-16 border-t border-white/5 pt-8 text-center text-sm text-zinc-500">
+        <div className="mt-12 border-t border-white/5 pt-6 text-center text-xs text-zinc-500 sm:mt-16 sm:pt-8 sm:text-sm">
           © {new Date().getFullYear()} LinkHexa. All rights reserved.
         </div>
       </div>

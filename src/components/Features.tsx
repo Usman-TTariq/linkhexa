@@ -98,7 +98,7 @@ const item = {
 
 export default function Features() {
   return (
-    <section id="features" className="relative overflow-hidden py-24 sm:py-32">
+    <section id="features" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       {/* Purple glow on left - same style as Hero */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-1/4 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-[120px]" />
@@ -114,7 +114,7 @@ export default function Features() {
           viewport={{ once: true }}
           className="mx-auto flex max-w-2xl flex-col items-center text-center"
         >
-          <div className="relative inline-flex flex-col items-center gap-5 rounded-2xl border-2 border-indigo-400/70 bg-black/40 px-8 py-6 sm:px-12 sm:py-8">
+          <div className="relative inline-flex flex-col items-center gap-4 rounded-2xl border-2 border-indigo-400/70 bg-black/40 px-5 py-5 sm:gap-5 sm:px-8 sm:py-6 lg:px-12 lg:py-8">
             {/* Pill-shaped accent with subtle shadow */}
             <div
               className="h-2 w-14 rounded-full bg-violet-500/90 shadow-md"
@@ -130,7 +130,7 @@ export default function Features() {
             </h2>
           </div>
           <p
-            className="mt-5 text-lg font-semibold tracking-wide text-white/90"
+            className="mt-4 text-base font-semibold tracking-wide text-white/90 sm:mt-5 sm:text-lg"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "0.01em" }}
           >
             Built for Performance Partnerships
@@ -148,7 +148,7 @@ export default function Features() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-10 grid gap-4 sm:grid-cols-2 sm:mt-16 sm:gap-6 lg:grid-cols-3"
         >
           {features.map((feature, i) => (
             <motion.div
@@ -167,8 +167,8 @@ export default function Features() {
                   {feature.icon}
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-white">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+              <h3 className="text-base font-bold text-white sm:text-lg">{feature.title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 sm:mt-2 sm:text-sm">
                 {feature.description}
               </p>
             </motion.div>

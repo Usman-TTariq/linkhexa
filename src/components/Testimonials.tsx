@@ -31,7 +31,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,13 +39,13 @@ export default function Testimonials() {
           viewport={{ once: true }}
           className="mx-auto max-w-2xl text-center"
         >
-          <p className="text-sm font-medium uppercase tracking-widest text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-indigo-400 sm:text-sm">
             Testimonials
           </p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl">
             Loved by teams everywhere
           </h2>
-          <p className="mt-4 text-lg text-zinc-400">
+          <p className="mt-3 text-base text-zinc-400 sm:mt-4 sm:text-lg">
             See what our customers have to say about automating with LinkHexa.
           </p>
         </motion.div>
@@ -59,9 +59,9 @@ export default function Testimonials() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ y: -4 }}
-              className="glass rounded-2xl border border-white/5 p-6"
+              className="glass rounded-2xl border border-white/5 p-4 sm:p-6"
             >
-              <p className="text-zinc-300">&ldquo;{t.quote}&rdquo;</p>
+              <p className="text-sm text-zinc-300 sm:text-base">&ldquo;{t.quote}&rdquo;</p>
               <div className="mt-6 flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/20 text-sm font-semibold text-indigo-400">
                   {t.avatar}

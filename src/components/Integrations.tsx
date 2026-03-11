@@ -27,7 +27,7 @@ function MarqueeRow({ direction = "left" }: { direction?: "left" | "right" }) {
         {duplicated.map((name, i) => (
           <div
             key={`${name}-${i}`}
-            className="flex h-16 min-w-[140px] shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-zinc-800/80 text-center text-sm font-medium text-zinc-300 transition-colors hover:border-indigo-400/50 hover:text-white"
+            className="flex h-14 min-w-[120px] shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-zinc-800/80 text-center text-xs font-medium text-zinc-300 transition-colors hover:border-indigo-400/50 hover:text-white sm:h-16 sm:min-w-[140px] sm:text-sm"
           >
             {name}
           </div>
@@ -39,7 +39,7 @@ function MarqueeRow({ direction = "left" }: { direction?: "left" | "right" }) {
 
 export default function Integrations() {
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -47,13 +47,13 @@ export default function Integrations() {
           viewport={{ once: true }}
           className="mx-auto max-w-2xl text-center"
         >
-          <p className="text-sm font-medium uppercase tracking-widest text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-indigo-400 sm:text-sm">
             Integrations
           </p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl">
             Works with the tools you already use
           </h2>
-          <p className="mt-4 text-lg text-zinc-400">
+          <p className="mt-3 text-base text-zinc-400 sm:mt-4 sm:text-lg">
             Connect 100+ apps and automate workflows across your entire stack.
           </p>
         </motion.div>
@@ -62,9 +62,9 @@ export default function Integrations() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-16"
+          className="mt-10 sm:mt-16"
         >
-          <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] sm:p-8">
+          <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] sm:p-6 lg:p-8">
             <div className="flex flex-col gap-4">
               <MarqueeRow direction="left" />
               <MarqueeRow direction="right" />

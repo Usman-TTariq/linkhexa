@@ -17,7 +17,7 @@ const plans = [
       "Email support",
     ],
     cta: "Start free trial",
-    href: "#signup",
+    href: "/get-started",
     highlighted: false,
   },
   {
@@ -34,7 +34,7 @@ const plans = [
       "Advanced analytics",
     ],
     cta: "Get started",
-    href: "#signup",
+    href: "/get-started",
     highlighted: true,
   },
   {
@@ -51,7 +51,7 @@ const plans = [
       "Custom contracts",
     ],
     cta: "Contact sales",
-    href: "#contact",
+    href: "/contact",
     highlighted: false,
   },
 ];
@@ -60,7 +60,7 @@ export default function Pricing() {
   const [yearly, setYearly] = useState(true);
 
   return (
-    <section id="pricing" className="relative py-24 sm:py-32">
+    <section id="pricing" className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -78,7 +78,7 @@ export default function Pricing() {
             Start free. Scale as you grow. No hidden fees.
           </p>
 
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-8 sm:gap-4">
             <span
               className={`text-sm font-medium ${
                 !yearly ? "text-white" : "text-zinc-500"
@@ -120,7 +120,7 @@ export default function Pricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`relative rounded-2xl border p-6 sm:p-8 ${
+              className={`relative rounded-2xl border p-4 sm:p-6 lg:p-8 ${
                 plan.highlighted
                   ? "glass-strong border-indigo-500/50 shadow-lg shadow-indigo-500/10"
                   : "glass border-white/5"
@@ -131,10 +131,10 @@ export default function Pricing() {
                   Recommended
                 </div>
               )}
-              <h3 className="text-xl font-semibold text-white">{plan.name}</h3>
-              <p className="mt-2 text-sm text-zinc-400">{plan.description}</p>
-              <div className="mt-6 flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-white">
+              <h3 className="text-lg font-semibold text-white sm:text-xl">{plan.name}</h3>
+              <p className="mt-1.5 text-xs text-zinc-400 sm:mt-2 sm:text-sm">{plan.description}</p>
+              <div className="mt-4 flex items-baseline gap-1 sm:mt-6">
+                <span className="text-3xl font-bold text-white sm:text-4xl">
                   ${yearly ? plan.yearly : plan.monthly}
                 </span>
                 <span className="text-zinc-500">/month</span>
@@ -164,7 +164,7 @@ export default function Pricing() {
               </ul>
               <Link
                 href={plan.href}
-                className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all ${
+                className={`mt-6 block w-full rounded-xl py-2.5 text-center text-sm font-semibold transition-all sm:mt-8 sm:py-3 ${
                   plan.highlighted
                     ? "bg-indigo-600 text-white hover:bg-indigo-500"
                     : "border border-white/10 text-white hover:bg-white/5"

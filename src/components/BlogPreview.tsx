@@ -29,7 +29,7 @@ const posts = [
 
 export default function BlogPreview() {
   return (
-    <section id="blog" className="relative py-24 sm:py-32">
+    <section id="blog" className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -37,18 +37,18 @@ export default function BlogPreview() {
           viewport={{ once: true }}
           className="mx-auto max-w-2xl text-center"
         >
-          <p className="text-sm font-medium uppercase tracking-widest text-indigo-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-indigo-400 sm:text-sm">
             Blog
           </p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl">
             Latest from our blog
           </h2>
-          <p className="mt-4 text-lg text-zinc-400">
+          <p className="mt-3 text-base text-zinc-400 sm:mt-4 sm:text-lg">
             Tips, tutorials, and updates from the LinkHexa team.
           </p>
         </motion.div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-3">
           {posts.map((post, i) => (
             <motion.article
               key={post.title}
@@ -63,7 +63,7 @@ export default function BlogPreview() {
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/5 glass p-6 transition-all hover:border-white/10"
               >
                 <span className="text-sm text-zinc-500">{post.date}</span>
-                <h3 className="mt-2 text-lg font-semibold text-white transition-colors group-hover:text-indigo-400">
+                <h3 className="mt-2 text-base font-semibold text-white transition-colors group-hover:text-indigo-400 sm:text-lg">
                   {post.title}
                 </h3>
                 <p className="mt-2 flex-1 text-zinc-400">{post.excerpt}</p>

@@ -31,7 +31,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+            className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
             Build, ship, and scale{" "}
@@ -41,7 +41,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 text-lg text-zinc-400 sm:text-xl"
+            className="mt-4 text-base text-zinc-400 sm:mt-6 sm:text-lg lg:text-xl"
           >
             One platform to automate workflows, connect your tools, and grow your
             revenue. No code required.
@@ -50,9 +50,9 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+            className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:gap-4 sm:flex-row"
           >
-            <AnimatedOutlineButton href="#signup">
+            <AnimatedOutlineButton href="/get-started">
               Get started free →
             </AnimatedOutlineButton>
             <AnimatedOutlineButton href="#features">
@@ -73,7 +73,7 @@ export default function Hero() {
                 <div className="h-3 w-3 rounded-full bg-amber-500/80" />
                 <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
               </div>
-              <div className="grid grid-cols-12 gap-4 bg-white/[0.02] p-6">
+              <div className="grid grid-cols-12 gap-2 bg-white/[0.02] p-3 sm:gap-4 sm:p-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <motion.div
                     key={i}
