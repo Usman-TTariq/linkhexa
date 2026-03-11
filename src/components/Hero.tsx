@@ -67,8 +67,8 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="mt-16 sm:mt-20"
           >
-            <div className="glass-strong glow-md mx-auto max-w-5xl overflow-hidden rounded-2xl border border-white/10 p-2 shadow-2xl">
-              <div className="flex items-center gap-2 rounded-t-lg border-b border-white/5 bg-white/5 px-4 py-3">
+            <div className="glass-strong glow-md mx-auto max-w-5xl overflow-hidden border border-white/10 p-2 shadow-2xl">
+              <div className="flex items-center gap-2 border-b border-white/5 bg-white/5 px-4 py-3">
                 <div className="h-3 w-3 rounded-full bg-red-500/80" />
                 <div className="h-3 w-3 rounded-full bg-amber-500/80" />
                 <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
@@ -77,7 +77,7 @@ export default function Hero() {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <motion.div
                     key={i}
-                    className="col-span-12 rounded-lg border border-white/5 bg-white/5 p-4 sm:col-span-6 lg:col-span-4"
+                    className="col-span-12 border border-white/5 bg-white/5 p-4 sm:col-span-6 lg:col-span-4"
                     whileHover={{ scale: 1.02, borderColor: "rgba(99,102,241,0.3)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >

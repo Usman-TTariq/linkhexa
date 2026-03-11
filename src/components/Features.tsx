@@ -114,7 +114,7 @@ export default function Features() {
           viewport={{ once: true }}
           className="mx-auto flex max-w-2xl flex-col items-center text-center"
         >
-          <div className="relative inline-flex flex-col items-center gap-5 rounded-2xl border-2 border-indigo-400/70 bg-black/40 px-8 py-6 sm:px-12 sm:py-8">
+          <div className="relative inline-flex flex-col items-center gap-5 border-2 border-indigo-400/70 bg-black/40 px-8 py-6 sm:px-12 sm:py-8">
             {/* Pill-shaped accent with subtle shadow */}
             <div
               className="h-2 w-14 rounded-full bg-violet-500/90 shadow-md"
@@ -156,7 +156,7 @@ export default function Features() {
               variants={item}
               className="group glass rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10"
             >
-              <div className="mb-4 inline-flex rounded-xl bg-indigo-500/10 p-3 text-indigo-400 transition-colors group-hover:bg-indigo-500/20">
+              <div className="mb-4 inline-flex bg-indigo-500/10 p-3 text-indigo-400 transition-colors group-hover:bg-indigo-500/20">
                 <svg
                   className="h-6 w-6"
                   fill="none"

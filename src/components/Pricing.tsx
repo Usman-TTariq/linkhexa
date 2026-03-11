@@ -120,7 +120,7 @@ export default function Pricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`relative rounded-2xl border p-6 sm:p-8 ${
+              className={`relative border p-6 sm:p-8 ${
                 plan.highlighted
                   ? "glass-strong border-indigo-500/50 shadow-lg shadow-indigo-500/10"
                   : "glass border-white/5"
@@ -164,7 +164,7 @@ export default function Pricing() {
               </ul>
               <Link
                 href={plan.href}
-                className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all ${
+                className={`mt-8 block w-full py-3 text-center text-sm font-semibold transition-all ${
                   plan.highlighted
                     ? "bg-indigo-600 text-white hover:bg-indigo-500"
                     : "border border-white/10 text-white hover:bg-white/5"

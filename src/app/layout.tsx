@@ -45,7 +45,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
         suppressHydrationWarning
       >
-        {children}
+        {/* Strip extension-injected attrs (e.g. bis_skin_checked) before hydration to reduce mismatch warnings */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{document.querySelectorAll('[bis_skin_checked]').forEach(function(e){e.removeAttribute('bis_skin_checked');});}catch(e){}})();`,
+          }}
+        />
+        <div suppressHydrationWarning>
+          {children}
+        </div>
       </body>
     </html>
   );

@@ -17,6 +17,26 @@ const logos = [
   "Microsoft",
 ];
 
+function MarqueeRow({ direction = "left" }: { direction?: "left" | "right" }) {
+  const duplicated = [...logos, ...logos];
+  return (
+    <div className="overflow-hidden">
+      <div
+        className={`flex w-max gap-4 ${direction === "right" ? "animate-marquee-reverse" : "animate-marquee"}`}
+      >
+        {duplicated.map((name, i) => (
+          <div
+            key={`${name}-${i}`}
+            className="flex h-16 min-w-[140px] shrink-0 items-center justify-center border border-white/5 bg-zinc-800/80 text-center text-sm font-medium text-zinc-300 transition-colors hover:border-indigo-400/50 hover:text-white"
+          >
+            {name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Integrations() {
   return (
     <section className="relative py-24 sm:py-32">
@@ -44,21 +64,10 @@ export default function Integrations() {
           viewport={{ once: true }}
           className="mt-16"
         >
-          <div className="rounded-2xl border border-white/5 bg-zinc-900/50 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] sm:p-8">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {logos.map((name, i) => (
-                <motion.div
-                  key={name}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex h-16 w-full items-center justify-center rounded-2xl border border-white/5 bg-zinc-800/80 text-center text-sm font-medium text-zinc-300 shadow-sm transition-all hover:border-indigo-400/50 hover:text-white hover:shadow-[0_0_0_1px_rgba(99,102,241,0.3)]"
-                >
-                  {name}
-                </motion.div>
-              ))}
+          <div className="overflow-hidden border border-white/5 bg-zinc-900/50 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] sm:p-8">
+            <div className="flex flex-col gap-4">
+              <MarqueeRow direction="left" />
+              <MarqueeRow direction="right" />
             </div>
           </div>
         </motion.div>

@@ -78,7 +78,7 @@ function AnimatedStat({
         : display.toLocaleString() + suffix);
 
   return (
-    <div ref={ref} className="glass rounded-2xl border border-white/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-indigo-500/20">
+    <div ref={ref} className="glass border border-white/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-indigo-500/20">
       <p className="text-3xl font-bold text-white sm:text-4xl">{formatted}</p>
       <p className="mt-1 text-sm text-zinc-500">{label}</p>
     </div>
@@ -230,7 +230,7 @@ export default function ForAdvertisers() {
           <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-zinc-500">
             Campaign types
           </p>
-          <div className="glass rounded-2xl border border-white/5 p-6 sm:p-8">
+          <div className="glass border border-white/5 p-6 sm:p-8">
             <div className="flex flex-wrap justify-center gap-3">
               {serviceTags.map((tag) => (
                 <span

@@ -108,7 +108,7 @@ function AnimatedStatCard({
   return (
     <div
       ref={ref}
-      className="rounded-xl border border-white/5 bg-zinc-900/60 p-5 text-center backdrop-blur-sm transition-all hover:border-indigo-500/20"
+      className="border border-white/5 bg-zinc-900/60 p-5 text-center backdrop-blur-sm transition-all hover:border-indigo-500/20"
     >
       <p className="text-2xl font-bold text-indigo-400 sm:text-3xl">{formatAnimated(display, format)}</p>
       <p className="mt-1 text-sm text-zinc-500">{label}</p>
@@ -197,7 +197,7 @@ export default function ImpactByNumbers() {
                 </svg>
               </span>
               <span
-                className="rounded-2xl border-2 border-indigo-400/70 bg-black/30 px-5 py-2.5 text-2xl font-bold tracking-tight text-white sm:text-3xl"
+                className="border-2 border-indigo-400/70 bg-black/30 px-5 py-2.5 text-2xl font-bold tracking-tight text-white sm:text-3xl"
                 style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
               >
                 Impact by the numbers

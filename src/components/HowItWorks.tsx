@@ -130,7 +130,7 @@ export default function HowItWorks() {
                       }`}
                     >
                       <div
-                        className={`glass rounded-xl border border-white/5 p-4 text-center md:text-left ${
+                        className={`glass border border-white/5 p-4 text-center md:text-left ${
                           !isEven ? "md:text-right" : ""
                         }`}
                       >

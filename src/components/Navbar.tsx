@@ -9,7 +9,7 @@ const navLinks = [
   { href: "#home", label: "Home" },
   { href: "#advertisers", label: "Advertisers" },
   { href: "#publishers", label: "Publishers" },
-  { href: "#", label: "About" },
+  { href: "/about", label: "About" },
   { href: "#blog", label: "Blog" },
   { href: "#contact", label: "Contact" },
 ];
@@ -52,7 +52,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
-          <div className="flex items-center gap-5 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5">
+          <div className="flex items-center gap-5 border border-white/10 bg-white/5 px-5 py-2.5">
             {navLinks.map((link, i) => (
               <span key={link.href + link.label} className="flex items-center gap-5">
                 {i === 2 && <span className="text-zinc-500">|</span>}
@@ -71,7 +71,7 @@ export default function Navbar() {
                 key={s.name}
                 href={s.href}
                 aria-label={s.name}
-                className="rounded-lg border border-white/10 bg-white/5 p-2.5 text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+                className="border border-white/10 bg-white/5 p-2.5 text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
               >
                 {s.icon}
               </a>
@@ -80,13 +80,13 @@ export default function Navbar() {
           <div className="ml-2 flex items-center gap-3">
             <Link
               href="#login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
+              className="px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
             >
               Login
             </Link>
             <Link
               href="#signup"
-              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-all hover:bg-zinc-200"
+              className="bg-white px-4 py-2 text-sm font-semibold text-black transition-all hover:bg-zinc-200"
             >
               Sign Up
             </Link>
@@ -128,7 +128,7 @@ export default function Navbar() {
                 <Link
                   key={link.href + link.label}
                   href={link.href}
-                  className="rounded-lg px-4 py-3 text-sm font-medium text-zinc-300 hover:bg-white/5 hover:text-white"
+                  className="px-4 py-3 text-sm font-medium text-zinc-300 hover:bg-white/5 hover:text-white"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
@@ -140,7 +140,7 @@ export default function Navbar() {
                     key={s.name}
                     href={s.href}
                     aria-label={s.name}
-                    className="rounded-lg border border-white/10 bg-white/5 p-2.5 text-zinc-400 hover:text-white"
+                    className="border border-white/10 bg-white/5 p-2.5 text-zinc-400 hover:text-white"
                     onClick={() => setMobileOpen(false)}
                   >
                     {s.icon}
@@ -157,7 +157,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="#signup"
-                  className="rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black hover:bg-zinc-200"
+                  className="bg-white px-4 py-3 text-center text-sm font-semibold text-black hover:bg-zinc-200"
                   onClick={() => setMobileOpen(false)}
                 >
                   Sign Up
