@@ -6,7 +6,7 @@ import Image from "next/image";
 const exploreMore = [
   { label: "Advertisers", href: "#advertisers" },
   { label: "Publishers", href: "#publishers" },
-  { label: "About", href: "#" },
+  { label: "About", href: "/about" },
   { label: "Blog", href: "#blog" },
   { label: "Contact", href: "#contact" },
 ];
@@ -32,8 +32,54 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <footer className="relative overflow-hidden border-t border-white/5 py-16">
+      {/* Purple spots + faded Link / Hexa (same as HowItWorks, TrustAndPartnerships) */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-32 top-1/4 h-[350px] w-[350px] rounded-full bg-indigo-500/20 blur-[120px]" />
+        <div className="absolute left-0 top-1/2 h-[280px] w-[280px] rounded-full bg-violet-500/15 blur-[100px]" />
+        <div className="absolute -right-32 top-1/3 h-[350px] w-[350px] rounded-full bg-indigo-500/15 blur-[120px]" />
+        <div className="absolute right-0 bottom-1/3 h-[280px] w-[280px] rounded-full bg-violet-500/12 blur-[100px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_0%_50%,rgba(99,102,241,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_100%_50%,rgba(99,102,241,0.08),transparent)]" />
+        <div
+          className="absolute left-0 top-0 flex h-full w-[min(28%,220px)] items-center pl-4 sm:pl-6 md:pl-8"
+          style={{
+            maskImage: "linear-gradient(to right, black 20%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, black 20%, transparent 100%)",
+          }}
+        >
+          <span
+            className="text-5xl font-bold tracking-tight text-black sm:text-6xl md:text-7xl"
+            style={{
+              fontFamily: "var(--font-libre-baskerville), serif",
+              letterSpacing: "-0.03em",
+              opacity: 0.35,
+            }}
+          >
+            Link
+          </span>
+        </div>
+        <div
+          className="absolute right-0 top-0 flex h-full w-[min(28%,220px)] items-center justify-end pr-4 sm:pr-6 md:pr-8"
+          style={{
+            maskImage: "linear-gradient(to left, black 20%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to left, black 20%, transparent 100%)",
+          }}
+        >
+          <span
+            className="text-5xl font-bold tracking-tight text-black sm:text-6xl md:text-7xl"
+            style={{
+              fontFamily: "var(--font-libre-baskerville), serif",
+              letterSpacing: "-0.03em",
+              opacity: 0.35,
+            }}
+          >
+            Hexa
+          </span>
+        </div>
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block">
@@ -54,7 +100,7 @@ export default function Footer() {
                   key={s.name}
                   href={s.href}
                   aria-label={s.name}
-                  className="rounded-lg border border-white/10 bg-white/5 p-2.5 text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+                  className="border border-white/10 bg-white/5 p-2.5 text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
                 >
                   {s.icon}
                 </a>
@@ -110,13 +156,13 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="tel:+18472087685" className="transition-colors hover:text-white">
-                  +1 847 208 7685
+                <a href="tel:+15108631830" className="transition-colors hover:text-white">
+                  +1 510 863 1830
                 </a>
               </li>
               <li className="pt-1">
-                <span className="block">734 S Charlotte St</span>
-                <span className="block">Lombard, IL 60148</span>
+                <span className="block">811 Wilshire Blvd Ste 1753</span>
+                <span className="block">Los Angeles, CA 90017</span>
               </li>
             </ul>
           </div>

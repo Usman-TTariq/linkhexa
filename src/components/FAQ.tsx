@@ -70,7 +70,7 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-xl border border-white/5 bg-zinc-900/40 backdrop-blur-sm transition-colors hover:border-white/10"
+              className="border border-white/5 bg-zinc-900/40 backdrop-blur-sm transition-colors hover:border-white/10"
             >
               <button
                 type="button"

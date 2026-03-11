@@ -68,7 +68,7 @@ function AnimatedStat({
         : display.toLocaleString() + suffix);
 
   return (
-    <div ref={ref} className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 text-center backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-indigo-500/20">
+    <div ref={ref} className="border border-white/5 bg-zinc-900/60 p-6 text-center backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-indigo-500/20">
       <p className="text-3xl font-bold text-indigo-400 sm:text-4xl">{formatted}</p>
       <p className="mt-1 text-sm text-zinc-500">{label}</p>
     </div>
@@ -199,7 +199,7 @@ export default function ForPublishers() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 backdrop-blur-sm"
+              className="border border-white/5 bg-zinc-900/60 p-6 backdrop-blur-sm"
             >
               <PublisherLineChart />
             </motion.div>
@@ -208,7 +208,7 @@ export default function ForPublishers() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 backdrop-blur-sm"
+              className="border border-white/5 bg-zinc-900/60 p-6 backdrop-blur-sm"
             >
               <PublisherBarChart />
             </motion.div>

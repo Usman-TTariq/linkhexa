@@ -60,7 +60,7 @@ export default function BlogPreview() {
             >
               <Link
                 href={post.slug}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/5 glass p-6 transition-all hover:border-white/10"
+                className="group flex h-full flex-col overflow-hidden border border-white/5 glass p-6 transition-all hover:border-white/10"
               >
                 <span className="text-sm text-zinc-500">{post.date}</span>
                 <h3 className="mt-2 text-lg font-semibold text-white transition-colors group-hover:text-indigo-400">

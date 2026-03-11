@@ -59,7 +59,7 @@ export default function Testimonials() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ y: -4 }}
-              className="glass rounded-2xl border border-white/5 p-6"
+              className="glass border border-white/5 p-6"
             >
               <p className="text-zinc-300">&ldquo;{t.quote}&rdquo;</p>
               <div className="mt-6 flex items-center gap-4">

@@ -70,7 +70,7 @@ export default function TrustAndPartnerships() {
             </svg>
           </div>
           <h2
-            className="inline-block rounded-xl border-2 border-indigo-400/60 bg-black/30 px-6 py-3 text-2xl font-bold text-indigo-400 sm:text-3xl md:text-4xl"
+            className="inline-block border-2 border-indigo-400/60 bg-black/30 px-6 py-3 text-2xl font-bold text-indigo-400 sm:text-3xl md:text-4xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
             <span className="italic">Trusted</span> by industry leaders
@@ -88,7 +88,7 @@ export default function TrustAndPartnerships() {
           </div>
           <Link
             href="#signup"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+            className="mt-8 inline-flex items-center gap-2 bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
           >
             Join LinkHexa
             <span>→</span>
@@ -103,7 +103,7 @@ export default function TrustAndPartnerships() {
           className="mb-20 sm:mb-28"
         >
           <h2
-            className="inline-block rounded-xl border-2 border-indigo-400/60 bg-black/30 px-6 py-3 text-2xl font-bold text-indigo-400 sm:text-3xl md:text-4xl"
+            className="inline-block border-2 border-indigo-400/60 bg-black/30 px-6 py-3 text-2xl font-bold text-indigo-400 sm:text-3xl md:text-4xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
             Build <span className="italic">Meaningful</span> Partnerships Today
@@ -113,7 +113,7 @@ export default function TrustAndPartnerships() {
           </p>
           <Link
             href="#signup"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+            className="mt-8 inline-flex items-center gap-2 bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
           >
             Get started today
             <span>→</span>
