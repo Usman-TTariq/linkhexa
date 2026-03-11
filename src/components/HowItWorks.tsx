@@ -5,33 +5,27 @@ import { motion } from "framer-motion";
 const steps = [
   {
     number: "01",
-    title: "Sign up in seconds",
+    title: "Create your partner account",
     description:
-      "Create your account with email or SSO. No credit card required to start.",
+      "Sign up as a publisher or advertiser in seconds and start building profitable partnerships.",
   },
   {
     number: "02",
-    title: "Connect your tools",
+    title: "Submit your information",
     description:
-      "Link Slack, Gmail, Stripe, and 100+ apps with one-click integrations.",
+      "Provide your details, website, and payment info so we can verify your account and set you up for campaigns.",
   },
   {
     number: "03",
-    title: "Automate and scale",
+    title: "Choose campaigns or partners",
     description:
-      "Build workflows visually and watch your team productivity soar.",
+      "Publishers pick campaigns to earn, and advertisers connect with publishers to drive performance.",
   },
   {
     number: "04",
-    title: "Track performance",
+    title: "Drive sales and revenue",
     description:
-      "Monitor clicks, conversions, and payouts in real time from one dashboard.",
-  },
-  {
-    number: "05",
-    title: "Scale your program",
-    description:
-      "Add more partners and campaigns as you grow, with no extra setup.",
+      "Publishers earn by promoting campaigns, and advertisers grow their business through performance partnerships.",
   },
 ];
 
@@ -98,17 +92,17 @@ export default function HowItWorks() {
             className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
-            Get started in five simple steps
+            Get started in 4 simple steps
           </h2>
           <p className="mt-4 text-lg text-zinc-400">
-            From signup to first automation in under five minutes.
+            From registration to earning or launching campaigns in just minutes.
           </p>
         </motion.div>
 
         <div className="mt-8 sm:mt-10">
           <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-5 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-500/50 via-indigo-500/30 to-transparent sm:left-6 md:left-1/2 md:-translate-x-px" />
+            {/* Timeline line - hidden on mobile, visible from md up */}
+            <div className="absolute left-5 top-0 bottom-0 hidden w-px bg-gradient-to-b from-indigo-500/50 via-indigo-500/30 to-transparent sm:left-6 md:block md:left-1/2 md:-translate-x-px" />
 
             <div className="space-y-4 sm:space-y-6 md:space-y-8">
               {steps.map((step, i) => {

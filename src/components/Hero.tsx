@@ -25,7 +25,7 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="mb-6 text-sm font-medium uppercase tracking-widest text-indigo-400"
           >
-            The future of business automation
+            Better Partnerships, Greater Growth.
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -34,8 +34,8 @@ export default function Hero() {
             className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
             style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
           >
-            Build, ship, and scale{" "}
-            <span className="gradient-text mt-2 block">faster than ever</span>
+            Partner, track, and{" "}
+            <span className="whitespace-nowrap text-indigo-400">grow with Partnerships.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -43,8 +43,7 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-4 text-base text-zinc-400 sm:mt-6 sm:text-lg lg:text-xl"
           >
-            One platform to automate workflows, connect your tools, and grow your
-            revenue. No code required.
+            Connect with top publishers and brands. Build partnerships that grow revenue.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -53,10 +52,10 @@ export default function Hero() {
             className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:gap-4 sm:flex-row"
           >
             <AnimatedOutlineButton href="/get-started">
-              Get started free →
+              Get Started
             </AnimatedOutlineButton>
-            <AnimatedOutlineButton href="#features">
-              Let&apos;s go!
+            <AnimatedOutlineButton href="/contact">
+              Contact
             </AnimatedOutlineButton>
           </motion.div>
 
