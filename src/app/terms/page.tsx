@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | LinkHexa",
-  description: "LinkHexa Terms and Conditions. Rules and agreements for using our platform.",
+  title: "LinkHexa Terms and Conditions | Platform Terms of Use",
+  description: "Review the LinkHexa Terms and Conditions outlining the rules, responsibilities, and guidelines for using our affiliate marketing platform.",
 };
 
 export default function TermsPage() {

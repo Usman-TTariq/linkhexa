@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import PublishersContent from "./PublishersContent";
 
 export const metadata: Metadata = {
-  title: "Publishers | LinkHexa",
-  description: "Monetize your traffic. Join creators, bloggers, and influencers. Promote top brands, track every click, and get paid on time.",
+  title: "Join LinkHexa as a Publisher | Monetize Your Audience",
+  description: "Become a LinkHexa publisher and promote leading brands across multiple industries. Earn commissions through performance-based affiliate marketing.",
 };
 
 export default function PublishersPage() {
