@@ -117,10 +117,10 @@ export default function Hero() {
                 <div className="h-3 w-3 rounded-full bg-amber-500/80" />
                 <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
               </div>
-              <div className="relative aspect-[21/9] max-h-[280px] bg-black sm:max-h-[320px]">
+              <div className="relative w-full aspect-video bg-black">
                 <video
                   src="/2318084_Business_Infographics_1920x1080.mp4"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                   autoPlay
                   muted
                   loop
