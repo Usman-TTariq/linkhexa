@@ -19,10 +19,10 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "LinkHexa | Modern SaaS Platform",
+  title: "LinkHexa | Performance Affiliate Marketing Network",
   description:
-    "The all-in-one platform to grow your business. Automate, integrate, and scale with ease.",
-  keywords: ["SaaS", "automation", "integrations", "business"],
+    "LinkHexa connects advertisers with high-quality affiliates to drive performance marketing results. Manage campaigns, track sales, and grow faster.",
+  keywords: ["affiliate marketing", "performance marketing", "advertisers", "publishers", "LinkHexa"],
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     apple: "/apple-icon.png",
   },
   openGraph: {
-    title: "LinkHexa | Modern SaaS Platform",
-    description: "The all-in-one platform to grow your business.",
+    title: "LinkHexa | Performance Affiliate Marketing Network",
+    description: "LinkHexa connects advertisers with high-quality affiliates to drive performance marketing results. Manage campaigns, track sales, and grow faster.",
   },
 };
 

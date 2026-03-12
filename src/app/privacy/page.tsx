@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | LinkHexa",
-  description: "LinkHexa Privacy Policy. How we collect, use, and protect your information.",
+  title: "LinkHexa Privacy Policy | Data Protection & User Privacy",
+  description: "Read the LinkHexa Privacy Policy to learn how we collect, use, and protect your personal information while using our affiliate marketing network.",
 };
 
 export default function PrivacyPage() {

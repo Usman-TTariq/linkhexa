@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Legal Information / Imprint | LinkHexa",
-  description: "Company information and legal details for LinkHexa.",
+  title: "LinkHexa Imprint | Company Information & Legal Details",
+  description: "View the LinkHexa Imprint page for official company information, contact details, and legal disclosures related to our affiliate network.",
 };
 
 const cardClass = "rounded-xl border border-white/10 bg-zinc-900/80 p-6";
