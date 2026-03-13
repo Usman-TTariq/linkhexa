@@ -6,7 +6,6 @@ import ForAdvertisers from "@/components/ForAdvertisers";
 import ForPublishers from "@/components/ForPublishers";
 import ImpactByNumbers from "@/components/ImpactByNumbers";
 import HowItWorks from "@/components/HowItWorks";
-import Integrations from "@/components/Integrations";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import TrustAndPartnerships from "@/components/TrustAndPartnerships";
@@ -26,7 +25,6 @@ export default function Home() {
         <HowItWorks />
         <ForPublishers />
         <ImpactByNumbers />
-        <Integrations />
         <Testimonials />
         <FAQ />
         <TrustAndPartnerships />
