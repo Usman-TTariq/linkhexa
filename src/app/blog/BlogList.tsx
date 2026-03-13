@@ -4,20 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getLatestPosts, type Post } from "@/sanity/queries";
+import { getAllPosts, type Post } from "@/sanity/queries";
 
-export default function BlogPreview() {
+export default function BlogList() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLatestPosts(3)
+    getAllPosts()
       .then(setPosts)
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <section id="blog" className="relative py-16 sm:py-24 lg:py-32">
+    <section className="relative py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -29,7 +29,7 @@ export default function BlogPreview() {
             Blog
           </p>
           <h2 className="mt-3 text-2xl font-bold tracking-tight text-white sm:mt-4 sm:text-3xl lg:text-4xl">
-            Latest from our blog
+            All Posts
           </h2>
           <p className="mt-3 text-base text-zinc-400 sm:mt-4 sm:text-lg">
             Tips, tutorials, and updates from the LinkHexa team.
@@ -38,7 +38,7 @@ export default function BlogPreview() {
 
         {loading ? (
           <div className="mt-10 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
                 className="h-64 animate-pulse rounded-2xl border border-white/5 bg-zinc-800/50"

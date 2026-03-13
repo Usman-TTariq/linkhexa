@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BlogPreview from "@/components/BlogPreview";
+import BlogList from "./BlogList";
 
 export const metadata: Metadata = {
   title: "LinkHexa Blog | Affiliate Marketing Insights, Tips & News",
@@ -14,7 +14,7 @@ export default function BlogPage() {
     <>
       <Navbar />
       <main>
-        <BlogPreview />
+        <BlogList />
       </main>
       <Footer />
     </>
