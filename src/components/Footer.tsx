@@ -15,7 +15,7 @@ const legalInfo = [
   { label: "Terms & Conditions", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Imprint", href: "/imprint" },
-  { label: "Mediakit", href: "#" },
+  { label: "Mediakit", href: "/LinkHexa (1).pdf", openInNewTab: true },
 ];
 
 const socials = [
@@ -127,12 +127,23 @@ export default function Footer() {
             <ul className="mt-4 space-y-3">
               {legalInfo.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-zinc-500 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
+                  {"openInNewTab" in link && link.openInNewTab ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-zinc-500 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-zinc-500 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
