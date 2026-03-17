@@ -15,7 +15,7 @@ const legalInfo = [
   { label: "Terms & Conditions", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Imprint", href: "/imprint" },
-  { label: "Mediakit", href: "/LinkHexa-mediakit.pdf", openInNewTab: true },
+  { label: "Mediakit", href: "/mediakit" },
 ];
 
 const socials = [
