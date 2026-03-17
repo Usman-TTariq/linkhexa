@@ -14,7 +14,7 @@ const features = [
     ),
     title: "Live Attribution",
     description:
-      "Track clicks, leads, and conversions as they happen. Our system provides accurate attribution so every partner receives proper credit for the results they generate.",
+      "Monitor clicks, leads, and conversions in real time. Our platform ensures precise attribution so each partner gets the right credit for the performance they deliver.",
   },
   {
     icon: (
@@ -27,7 +27,7 @@ const features = [
     ),
     title: "Reliable Payouts",
     description:
-      "Manage commissions and payouts through a reliable payment system. Automated processes and multiple withdrawal options ensure partners receive their earnings smoothly.",
+      "Handle commissions and partner payments through a dependable payout system. Automated workflows and flexible withdrawal methods help ensure earnings are delivered quickly and without hassle.",
   },
   {
     icon: (
@@ -40,7 +40,7 @@ const features = [
     ),
     title: "Traffic Integrity",
     description:
-      "Advanced security systems monitor traffic quality, detect suspicious activity, and protect campaigns from invalid clicks and fraudulent conversions.",
+      "We actively review incoming traffic to maintain campaign quality and reduce risk. Built-in protection helps flag suspicious behavior and prevents fake clicks or misleading conversions from affecting performance.",
   },
   {
     icon: (
@@ -53,7 +53,7 @@ const features = [
     ),
     title: "Borderless Partnerships",
     description:
-      "Discover advertisers and publishers from different regions and industries, helping you expand reach and build valuable partnerships worldwide.",
+      "Connect with advertisers and publishers across diverse regions and sectors, enabling you to grow your audience and forge meaningful global collaborations.",
   },
   {
     icon: (
@@ -66,7 +66,7 @@ const features = [
     ),
     title: "Performance Intelligence",
     description:
-      "Analyze campaign performance with clear reports and insights. Identify top partners, monitor trends, and optimize strategies based on real data.",
+      "Gain actionable insights into your campaigns with detailed analytics. Spot high-performing partners, track emerging trends, and make data-driven decisions to enhance results.",
   },
   {
     icon: (
@@ -79,7 +79,7 @@ const features = [
     ),
     title: "One Dashboard",
     description:
-      "Control campaigns, partners, and communications from one centralized dashboard designed to simplify daily affiliate program operations.",
+      "Manage all your campaigns, partners, and messages from a single centralized platform, built to streamline your affiliate program and simplify everyday operations.",
   },
 ];
 

@@ -5,19 +5,19 @@ import { motion, useInView } from "framer-motion";
 
 const whyTrustUs = [
   {
-    title: "Verified Publisher Network",
+    title: "Trusted Partner Network",
     description:
-      "Access a curated selection of trusted publishers who reach the right audience and drive meaningful traffic.",
+      "Connect with a carefully selected group of publishers who target the right audience and drive valuable traffic.",
   },
   {
-    title: "Real-Time Analytics",
+    title: "Instant Performance Insights",
     description:
-      "Track every click, lead, and sale in real time so you can make smarter campaign decisions on the fly.",
+      "See clicks, leads, and sales as they happen, enabling faster, smarter decisions for your campaigns.",
   },
   {
-    title: "Secure & Transparent",
+    title: "Fraud-Proof & Clear",
     description:
-      "Protect your campaigns from fraud with built-in monitoring that ensures authentic traffic and reliable ROI.",
+      "Keep your campaigns safe with built-in monitoring that guarantees authentic traffic and dependable returns.",
   },
 ];
 
@@ -193,7 +193,7 @@ export default function ForAdvertisers() {
               viewport={{ once: true }}
               className="mt-4 text-sm leading-relaxed text-zinc-400 sm:mt-6 sm:text-base"
             >
-              For Advertisers — Partner with performance-driven brands. Grow your business with campaigns designed to deliver measurable results. Our platform connects you with high-quality publishers, gives you actionable insights, and makes your marketing budget work harder.
+              Partner with performance-driven brands to grow your business. Launch campaigns designed for measurable success, connect with high-quality publishers, gain actionable insights, and make every marketing dollar count.
             </motion.p>
 
             <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400/90 sm:mt-10">

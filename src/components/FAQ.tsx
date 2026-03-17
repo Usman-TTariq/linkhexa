@@ -5,29 +5,29 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
   {
-    question: "What is an affiliate network?",
+    question: "1. What is LinkHexa?",
     answer:
-      "An affiliate network is a platform that connects advertisers with publishers. Advertisers list their offers and campaigns; publishers promote them and earn a commission for each sale, lead, or click they generate.",
+      "LinkHexa is a performance-driven affiliate marketing network that connects advertisers with trusted publishers. Our platform helps brands grow through measurable campaigns and enables publishers to monetize their content effectively.",
   },
   {
-    question: "Who can join the platform?",
+    question: "2. How is campaign performance tracked?",
     answer:
-      "Both advertisers and publishers can join. Advertisers looking to grow through performance marketing and publishers—including bloggers, influencers, and content creators—who want to monetize their audience are welcome. Sign-up is simple and we support both sides of the partnership.",
+      "We provide real-time analytics for every click, lead, and conversion. This allows you to monitor performance instantly, identify top partners, and optimize campaigns with actionable insights.",
   },
   {
-    question: "How do publishers earn commissions?",
+    question: "3. How do payouts work?",
     answer:
-      "Publishers earn a commission when someone from their audience completes a defined action—such as a purchase, sign-up, or lead form—after clicking their unique tracking link. Rates and commission structure are set by each advertiser and shown clearly in the offer details.",
+      "Our platform offers reliable, automated payouts with multiple withdrawal options. Partners are paid on time, and transparent reporting ensures you always know your earnings.",
   },
   {
-    question: "How are conversions tracked?",
+    question: "4. How does LinkHexa prevent fraud?",
     answer:
-      "We use real-time tracking to monitor clicks, conversions, and campaign performance. Every action is attributed accurately, and both advertisers and publishers get transparent, up-to-date reporting.",
+      "We use advanced security and traffic-monitoring systems to detect suspicious activity. This protects campaigns from invalid clicks, fraudulent conversions, and ensures ROI integrity.",
   },
   {
-    question: "When do publishers receive payments?",
+    question: "5. Can I manage everything from one dashboard?",
     answer:
-      "Payout cycles depend on the advertiser and are listed on each offer. Publishers can usually request payment once they reach the minimum payout threshold. We support multiple payout methods and process requests within the stated cycle (for example, net-30).",
+      "Yes. LinkHexa provides a centralized dashboard where you can control campaigns, partners, and communications, simplifying daily operations and affiliate program management.",
   },
 ];
 
@@ -58,7 +58,7 @@ export default function FAQ() {
             Frequently asked questions
           </h2>
           <p className="mt-3 text-sm text-zinc-400 sm:mt-4 sm:text-base">
-            Everything you need to know about our platform and affiliate programs.
+            Discover How LinkHexa and Our Affiliate Programs Can Work for You
           </p>
         </motion.div>
 

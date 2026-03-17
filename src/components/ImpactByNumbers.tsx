@@ -200,7 +200,7 @@ export default function ImpactByNumbers() {
                 className="rounded-2xl border-2 border-indigo-400/70 bg-black/30 px-4 py-2 text-xl font-bold tracking-tight text-white sm:px-5 sm:py-2.5 sm:text-2xl lg:text-3xl"
                 style={{ fontFamily: "var(--font-libre-baskerville), serif", letterSpacing: "-0.02em" }}
               >
-                Impact by the numbers
+                Impact in Action
               </span>
             </motion.div>
             <motion.p
@@ -209,7 +209,7 @@ export default function ImpactByNumbers() {
               viewport={{ once: true }}
               className="mt-6 text-base leading-relaxed text-zinc-400"
             >
-              From premium brands to high-performing publishers, our platform powers global partnerships. Leverage live insights, track performance, and grow your business with measurable results every single day.
+              From top-tier brands to high-performing publishers, our platform fuels worldwide partnerships. Harness real-time insights, monitor performance, and expand your business with results you can measure every day.
             </motion.p>
           </div>
         </div>

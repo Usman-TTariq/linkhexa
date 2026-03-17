@@ -5,19 +5,19 @@ import { motion, useInView } from "framer-motion";
 
 const whyChooseUs = [
   {
-    title: "Trusted Brand Partnerships",
+    title: "Premium Brand Connections",
     description:
-      "Connect with premium brands and campaigns that match your audience. We vet every advertiser so you promote with confidence.",
+      "Work with carefully vetted brands and campaigns that align with your audience, ensuring every promotion is trustworthy and effective.",
   },
   {
-    title: "Live Performance Insights",
+    title: "Real-Time Campaign Insights",
     description:
-      "Track clicks, leads, and conversions in real time. See what works and optimize your content strategy with clear, actionable data.",
+      "Monitor clicks, leads, and conversions instantly. Use clear, actionable data to refine your content and maximize performance.",
   },
   {
-    title: "Fast & Secure Payouts",
+    title: "Reliable & Swift Payments",
     description:
-      "Receive payments quickly and reliably. Multiple withdrawal options and transparent reporting so you always know where you stand.",
+      "Get your earnings on time with multiple withdrawal options and transparent reporting, so you always have full visibility of your revenue.",
   },
 ];
 
@@ -159,7 +159,7 @@ export default function ForPublishers() {
               className="mt-3 text-base font-medium text-zinc-300 sm:text-lg"
               style={{ fontFamily: "var(--font-libre-baskerville), serif" }}
             >
-              Monetize Your Content with Ease
+              Effortless Content Monetization
             </p>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -167,11 +167,11 @@ export default function ForPublishers() {
               viewport={{ once: true }}
               className="mt-4 text-sm leading-relaxed text-zinc-400 sm:mt-5 sm:text-base"
             >
-              Turn your audience into revenue. Partner with trusted brands, track every conversion, and get paid on time. Our platform is built to help publishers grow with clear insights and reliable payouts.
+              Transform your audience into consistent revenue. Work with reputable brands, monitor every conversion, and receive timely payments. Our platform empowers publishers to grow with actionable insights and dependable payouts.
             </motion.p>
 
             <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400/90">
-              Why publishers choose us
+              Why Publishers Partner with Us
             </p>
             <ul className="mt-4 space-y-4 sm:mt-5 sm:space-y-6">
               {whyChooseUs.map((item, i) => (

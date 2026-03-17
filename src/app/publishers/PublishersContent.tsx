@@ -18,66 +18,65 @@ const pressLogos = [
 ];
 
 const steps = [
-  { num: "01", title: "Sign up free", desc: "Set up your publisher account in minutes. Share details about your site or channel; most applications get a decision within 24–48 hours." },
-  { num: "02", title: "Browse & apply to offers", desc: "Explore thousands of offers by category, commission type, and brand. Apply to programs that fit your audience and receive approval from advertisers." },
-  { num: "03", title: "Share links & creatives", desc: "Get tracking links, banners, and promo codes from your dashboard. Use our deep link generator and API for custom integration when needed." },
-  { num: "04", title: "Earn & get paid", desc: "Monitor clicks and conversions in real time. When you reach the payout threshold, receive payments weekly via bank, PayPal, or other options." },
+  { num: "01", title: "Join for Free", desc: "Create your publisher account in minutes. Provide basic details about your website or channel, and most applications are approved within 24–48 hours." },
+  { num: "02", title: "Discover & Join Offers", desc: "Browse thousands of offers by category, commission type, and brand. Apply to programs that match your audience and get approved by advertisers." },
+  { num: "03", title: "Promote Links & Creative Assets", desc: "Access tracking links, banners, and promo codes directly from your dashboard. Use our deep link generator or API for custom integrations when needed." },
+  { num: "04", title: "Track Performance & Receive Payments", desc: "See clicks and conversions in real time. Once you hit the payout threshold, receive weekly payments via bank transfer, PayPal, or other convenient methods." },
 ];
 
 const waysToEarn = [
-  { title: "Commission per sale (CPS)", desc: "Earn a share or fixed amount each time someone purchases through your link. Suits product reviews, deal sites, and e-commerce content." },
-  { title: "Cost per lead (CPL)", desc: "Get paid for each qualified lead—sign-up, quote request, or form submit. Ideal for finance, insurance, and B2B content." },
-  { title: "Cost per action (CPA)", desc: "Earn when users complete a specific action: trial sign-up, app install, or subscription. Fits SaaS, apps, and subscription brands." },
-  { title: "Rev share", desc: "Ongoing commission on recurring revenue. Best if you promote subscriptions or membership products and want long-term earnings." },
-  { title: "Coupons & promo codes", desc: "Share exclusive codes and earn when your audience uses them at checkout. Popular with deal and coupon sites." },
-  { title: "Hybrid & bonuses", desc: "Many programs mix models or offer bonus tiers when you hit targets. Higher volume often means better rates." },
+  { title: "Commission per Sale (CPS)", desc: "Earn a fixed amount or a percentage each time a purchase is made through your link. Perfect for product reviews, deal sites, and e-commerce content." },
+  { title: "Cost per Lead (CPL)", desc: "Get compensated for every qualified lead—such as sign-ups, quote requests, or form submissions. Ideal for finance, insurance, and B2B-focused content." },
+  { title: "Cost per Action (CPA)", desc: "Receive earnings when users complete a specific action, like trial registrations, app installs, or subscriptions. Suited for SaaS platforms, apps, and subscription services." },
+  { title: "Revenue Share", desc: "Earn ongoing commissions from recurring revenue. Best for promoting subscription-based or membership products for long-term income." },
+  { title: "Coupons & Promo Codes", desc: "Distribute exclusive codes and earn whenever your audience redeems them at checkout. Popular among deal and coupon publishers." },
+  { title: "Hybrid & Bonus Programs", desc: "Many campaigns combine multiple models or offer bonus tiers when targets are met. Higher performance often leads to better rates and rewards." },
 ];
 
 const categories = [
-  { title: "E-commerce & retail", desc: "Fashion, electronics, home—earn on every sale you refer." },
-  { title: "Finance & insurance", desc: "High CPL offers for loans, insurance, and credit products." },
-  { title: "Travel & booking", desc: "Hotels, flights, packages—commission per booking." },
-  { title: "Health & wellness", desc: "Supplements, fitness, and wellness brands with recurring commissions." },
-  { title: "Software & SaaS", desc: "Trials and subscriptions with CPA or rev share." },
-  { title: "Education & courses", desc: "Online courses, certifications, and learning platforms." },
-  { title: "Telecom & utilities", desc: "Broadband, mobile, and energy switching offers." },
-  { title: "Gaming & apps", desc: "App installs and in-game offers with CPI and CPA." },
+  { title: "E-commerce & Retail", desc: "Promote fashion, electronics, and home products—earn commissions on every sale." },
+  { title: "Finance & Insurance", desc: "High-value CPL offers for loans, insurance plans, and credit services." },
+  { title: "Travel & Hospitality", desc: "Earn per booking on hotels, flights, and travel packages." },
+  { title: "Health & Wellness", desc: "Promote supplements, fitness programs, and wellness products with recurring revenue opportunities." },
+  { title: "Software & SaaS", desc: "Drive trial sign-ups and subscriptions through CPA or revenue share models." },
+  { title: "Education & Online Learning", desc: "Earn from online courses, certifications, and educational platforms." },
+  { title: "Telecom & Utilities", desc: "Promote broadband, mobile, and energy services with performance-based payouts." },
+  { title: "Gaming & Apps", desc: "Monetize app installs and in-game offers using CPI and CPA campaigns." },
 ];
 
 const publisherTools = [
-  { title: "Tracking links", desc: "Generate unique links per offer and campaign. Use deep links for app and category pages." },
-  { title: "Banners & creatives", desc: "Download ready-made banners, text links, and product feeds. Coupon and promo code lists included." },
-  { title: "Reports & analytics", desc: "Clicks, conversions, and earnings in real time. Export by date, offer, and traffic source." },
-  { title: "API & deep links", desc: "Integrate with your site or app. Build custom links and automate reporting via our API." },
+  { title: "Tracking Links", desc: "Create unique links for each offer or campaign. Use deep links to direct users to specific app screens or category pages." },
+  { title: "Banners & Creative Assets", desc: "Access ready-to-use banners, text links, product feeds, and coupon or promo code lists to enhance your promotions." },
+  { title: "Reports & Analytics", desc: "Monitor clicks, conversions, and earnings in real time. Export detailed data by date, offer, or traffic source." },
+  { title: "API & Deep Linking", desc: "Seamlessly integrate with your website or app. Generate custom links and automate reporting through our API." },
 ];
 
 const payoutPoints = [
-  "Weekly payout runs",
-  "Low minimum threshold",
-  "Bank transfer, PayPal & more",
-  "Clear pending vs. approved breakdown",
+  "Weekly payout cycles",
+  "Low minimum payout threshold",
+  "Multiple payment methods: bank transfer, PayPal, and more",
+  "Transparent breakdown of pending vs. approved earnings",
 ];
 
 const whoCanJoin = [
-  { title: "Content & bloggers", desc: "Reviews, guides, articles. Turn traffic into affiliate earnings with simple links." },
-  { title: "Coupons & deals", desc: "Share discounts and promo codes. Earn when your audience clicks and buys." },
-  { title: "Social & influencers", desc: "Monetize your following. Creators earn with every sale they drive." },
+  { title: "Content & Bloggers", desc: "Publish reviews, guides, and articles. Convert your site traffic into affiliate revenue with easy-to-use links." },
+  { title: "Coupons & Deal Sites", desc: "Promote discounts and promo codes, earning commissions whenever your audience clicks and completes a purchase." },
+  { title: "Social & Influencers", desc: "Monetize your social following. Creators earn commissions on every sale generated through their content." },
 ];
 
 const perks = [
-  { title: "Quick approval", desc: "Get approved fast. Start promoting within 24–48 hours." },
-  { title: "Real-time tracking", desc: "Clicks, conversions, earnings—live. No delayed reports." },
-  { title: "Flexible payouts", desc: "Weekly payouts. No hoops, no blocking minimums." },
-  { title: "Dedicated support", desc: "Publisher-specific support. Real humans, real help." },
+  { title: "Fast Approval", desc: "Join and get approved quickly—start promoting offers within 24–48 hours." },
+  { title: "Live Performance Tracking", desc: "Monitor clicks, conversions, and earnings in real time with no delays." },
+  { title: "Flexible Payouts", desc: "Receive weekly payments with no complicated minimums or hurdles." },
+  { title: "Dedicated Publisher Support", desc: "Get assistance from real support specialists who understand publisher needs." },
 ];
 
 const faqs = [
-  { q: "How long does publisher approval take?", a: "Most applications are reviewed within 24–48 hours. Some advertisers may take a bit longer. You’ll get an email when you’re approved, and you can start grabbing links and creatives right away." },
-  { q: "Is there a minimum traffic requirement?", a: "We welcome publishers of all sizes. Some programs may have their own criteria; you can see requirements in the offer details before applying." },
-  { q: "When and how do I get paid?", a: "We run weekly payout cycles. Once your balance meets the minimum and is approved, you can choose bank transfer, PayPal, or other methods depending on your region." },
-  { q: "Can I promote the same offer on multiple sites?", a: "Yes, unless a specific program’s terms say otherwise. Check each offer’s rules in your dashboard." },
-  { q: "Do you offer deep links and API access?", a: "Yes. Use our deep link generator for app and category pages, and our API for custom integration and automated reporting." },
-  { q: "What if I have a dispute or missing conversion?", a: "Contact our publisher support team. We’ll work with you and the advertiser to resolve tracking or payout issues." },
+  { q: "1. Who can join LinkHexa as a publisher?", a: "Any content creator, blogger, coupon site owner, influencer, or social media channel can join. Our network supports all types of publishers looking to monetize their audience." },
+  { q: "2. How do I start earning commissions?", a: "Sign up, get approved, choose offers that fit your audience, share your unique tracking links, and earn whenever users complete actions like sales, leads, or installs." },
+  { q: "3. What types of commission models are available?", a: "LinkHexa supports CPS (per sale), CPL (per lead), CPA (per action), revenue share, coupon/promo-based commissions, and hybrid programs—so you can pick what works best for your content and audience." },
+  { q: "4. How do I track performance and earnings?", a: "Our dashboard provides real-time tracking of clicks, conversions, and revenue. You can filter by date, advertiser, or campaign to optimize your strategy with actionable insights." },
+  { q: "5. When and how do I get paid?", a: "Publishers receive weekly payouts once the balance reaches the minimum threshold. Payments can be made via bank transfer, PayPal, or other supported methods depending on your region." },
 ];
 
 export default function PublishersContent() {
@@ -97,11 +96,11 @@ export default function PublishersContent() {
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
               <div>
-                <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-medium uppercase tracking-widest text-indigo-400">Monetize your traffic</motion.p>
-                <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Earn more as a LinkHexa publisher</motion.h1>
-                <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 max-w-xl text-base text-zinc-400 sm:text-lg">Join creators, bloggers, and influencers. Promote top brands, track every click, and get paid on time—no gatekeeping, no hassle.</motion.p>
+                <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-medium uppercase tracking-widest text-indigo-400">Monetize Your Audience</motion.p>
+                <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Maximize Earnings as a LinkHexa Publisher</motion.h1>
+                <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 max-w-xl text-base text-zinc-400 sm:text-lg">Join a network of creators, bloggers, and influencers. Promote leading brands, monitor every click, and receive timely payments—simple, transparent, and hassle-free.</motion.p>
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-8 flex flex-wrap gap-4">
-                  <Link href="/get-started" className="rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500">Join as publisher</Link>
+                  <Link href="/get-started" className="rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500">Join as a publisher</Link>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-10 rounded-xl border border-white/10 bg-zinc-900/60 p-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">Your dashboard</p>
@@ -149,11 +148,11 @@ export default function PublishersContent() {
                 </div>
               </div>
               <div className="order-1 lg:order-2">
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Share links. Earn commission.</h2>
-                <p className="mt-4 text-zinc-400">One link. Multiple brands. Your audience, your earnings.</p>
-                <p className="mt-4 text-zinc-400">Simple sign-up, instant access to offers, and transparent reporting. Start promoting in minutes. Whether you run a blog, a coupon site, or a social channel, we give you the tools and the offers to monetize your traffic without lock-in or hidden fees.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Promote Links, Earn Commissions</h2>
+                <p className="mt-4 text-zinc-400">One link gives you access to multiple brands—your audience, your revenue.</p>
+                <p className="mt-4 text-zinc-400">Sign up quickly, get instant access to top offers, and enjoy transparent reporting. Start promoting in minutes. Whether you manage a blog, coupon site, or social channel, we provide the tools and offers to monetize your traffic—no lock-ins, no hidden fees.</p>
                 <ul className="mt-6 space-y-3">
-                  {["Access 100+ trusted brands. Pick offers that fit your audience.", "Competitive commissions. Get paid for every sale you drive.", "Real-time tracking & weekly payouts. No guesswork, no delays."].map((item, i) => (
+                  {["Access 100+ trusted brands and choose offers that match your audience", "Competitive commissions—earn on every sale you drive", "Real-time tracking and weekly payouts for total transparency and reliability"].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-zinc-300">
                       <span className="h-2 w-2 shrink-0 rounded-full bg-indigo-400" />
                       {item}
@@ -172,9 +171,9 @@ export default function PublishersContent() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_80%_at_100%_50%,rgba(99,102,241,0.08),transparent)]" />
           </div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Simple process</p>
-            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>How it works for publishers</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">From sign-up to your first payout in four steps. No complex contracts—just sign up, pick offers, share links, and earn.</p>
+            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Easy & Straightforward</p>
+            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>How Publishers Get Started</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Go from sign-up to your first payout in four simple steps. No complicated contracts—just register, choose offers, share links, and start earning.</p>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map((step, i) => (
                 <motion.div key={step.num} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6">
@@ -193,9 +192,9 @@ export default function PublishersContent() {
             <div className="absolute left-1/2 top-1/4 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[100px]" />
           </div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Earn your way</p>
-            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Ways to earn as a publisher</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Different advertisers run different commission models. Promote offers that pay per sale, per lead, per click, or a mix—whatever fits your audience.</p>
+            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Monetize Your Traffic</p>
+            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Flexible Ways to Earn</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Advertisers offer a variety of commission models. Promote campaigns that pay per sale, per lead, per click, or a combination—choose what works best for your audience.</p>
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {waysToEarn.map((item, i) => (
                 <motion.div key={item.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5">
@@ -214,9 +213,9 @@ export default function PublishersContent() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_80%_20%,rgba(99,102,241,0.06),transparent)]" />
           </div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Offer catalog</p>
-            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Top categories to promote</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">From fashion to finance, find offers that match your niche. New programs are added regularly across verticals.</p>
+            <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Offer Marketplace</p>
+            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Popular Categories to Promote</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Discover offers across a wide range of industries—from fashion to finance—tailored to your audience. New campaigns are added regularly to keep your options fresh.</p>
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((item, i) => (
                 <motion.div key={item.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5">
@@ -240,8 +239,8 @@ export default function PublishersContent() {
                 <Image src="/639b7845e9be869771e540b8_mural-blog-images.jpg" alt="Publisher success" width={560} height={400} className="aspect-[4/3] w-full object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
               </motion.div>
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Publisher tools</h2>
-                <p className="mt-4 text-zinc-400">Everything you need to promote & track. Links, creatives, reporting, and support—all in one dashboard so you can focus on creating content and growing earnings.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Publisher Tools</h2>
+                <p className="mt-4 text-zinc-400">All-in-One Platform for Promotion & Tracking. Access links, creative assets, performance reports, and dedicated support—all from a single dashboard. Focus on creating content and maximizing your earnings while we handle the tracking and management.</p>
                 <div className="mt-8 space-y-4">
                   {publisherTools.map((tool, i) => (
                     <div key={tool.title} className="rounded-xl border border-white/10 bg-zinc-900/60 p-4">
@@ -264,9 +263,9 @@ export default function PublishersContent() {
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Get paid on time</h2>
-                <p className="mt-4 text-zinc-400">Payout options & schedule. We know timely payouts matter. LinkHexa runs weekly payout cycles so you don’t wait months to see your earnings.</p>
-                <p className="mt-4 text-zinc-400">Once your balance meets the minimum and is approved, you choose how you get paid. Multiple payment methods are supported—including bank transfer, PayPal, and other options depending on your region. Payout thresholds are clear in your dashboard.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Payout Options & Schedule</h2>
+                <p className="mt-4 text-zinc-400">We understand the importance of getting paid on time. LinkHexa processes weekly payouts so you don’t have to wait months to receive your earnings.</p>
+                <p className="mt-4 text-zinc-400">Once your balance reaches the minimum and is approved, you can select your preferred payment method. We support multiple options—including bank transfer, PayPal, and region-specific methods. Your dashboard clearly shows pending and approved balances.</p>
                 <ul className="mt-6 space-y-2">
                   {payoutPoints.map((point, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-zinc-300">
@@ -310,8 +309,8 @@ export default function PublishersContent() {
             <div className="absolute right-0 top-1/3 h-[300px] w-[300px] rounded-full bg-violet-500/12 blur-[100px]" />
           </div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Who can join?</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Built for every type of publisher. Blog, coupon site, social, or YouTube—monetize your audience your way.</p>
+            <h2 className="text-center text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Who Can Join?</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Designed for all types of publishers—whether you run a blog, coupon site, social channel, or YouTube, you can monetize your audience your way.</p>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
               {whoCanJoin.map((item, i) => (
                 <motion.div key={item.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 text-center">
@@ -323,7 +322,7 @@ export default function PublishersContent() {
                 </motion.div>
               ))}
             </div>
-            <p className="mx-auto mt-12 max-w-2xl text-center text-zinc-400">Why publishers choose LinkHexa. Simple sign-up, instant access to offers, and transparent reporting. Your audience, your content—we just connect you with brands that pay for results.</p>
+            <p className="mx-auto mt-12 max-w-2xl text-center text-zinc-400">Fast approval, live tracking, flexible payouts, and dedicated support—everything publishers need to grow.</p>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {perks.map((item, i) => (
                 <motion.div key={item.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-zinc-900/60 p-5 text-center">
@@ -342,9 +341,9 @@ export default function PublishersContent() {
             <div className="absolute left-1/2 top-1/4 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[100px]" />
           </div>
           <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Track. Earn. Get paid.</h2>
-            <p className="mt-4 text-zinc-400">Real-time stats, weekly payouts, and a dashboard built for publishers. No black boxes—clear numbers and on-time payments.</p>
-            <p className="mt-4 text-zinc-400">See exactly which links and offers perform. Filter by date, advertiser, or campaign so you can double down on what works. Our reporting is built for publishers who care about data, not just totals.</p>
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Monitor. Monetize. Receive Payments.</h2>
+            <p className="mt-4 text-zinc-400">Access real-time analytics, weekly payouts, and a dashboard designed specifically for publishers. No hidden metrics—just transparent numbers and timely payments.</p>
+            <p className="mt-4 text-zinc-400">See exactly which links and offers are driving results. Filter by date, advertiser, or campaign to focus on what works best. Our reporting is built for publishers who value actionable insights, not just summary totals.</p>
             <div className="mt-10 flex flex-wrap justify-center gap-6">
               {["1.5k+ Active publishers", "30K+ Top brands", "Weekly Payouts"].map((item, i) => (
                 <div key={i} className="rounded-xl border border-white/10 bg-zinc-900/60 px-6 py-3">
@@ -363,7 +362,7 @@ export default function PublishersContent() {
           </div>
           <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <p className="text-center text-sm font-medium uppercase tracking-widest text-indigo-400">Support</p>
-            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Guidelines & support</h2>
+            <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Frequently Asked Questions</h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-400">Promote with trust and get help when you need it.</p>
             <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/60">
               <div className="grid border-b border-white/10 md:grid-cols-2 md:border-b-0 md:border-r">
@@ -403,11 +402,11 @@ export default function PublishersContent() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(99,102,241,0.15),transparent)]" />
           </div>
           <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Ready to turn your traffic into earnings?</h2>
-            <p className="mt-4 text-zinc-400">Become part of a powerful affiliate platform where advertisers, publishers, and creators work together to grow audiences, drive performance, and create new earning opportunities.</p>
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl" style={{ fontFamily: "var(--font-libre-baskerville), serif" }}>Start Monetizing Your Audience Today</h2>
+            <p className="mt-4 text-zinc-400">Join a dynamic affiliate platform where advertisers, publishers, and creators collaborate to expand reach, boost results, and unlock new revenue opportunities.</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/get-started" className="rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500">Create publisher account</Link>
-              <Link href="/contact" className="rounded-lg border-2 border-white/20 bg-white/5 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10">Contact publisher team</Link>
+              <Link href="/get-started" className="rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500">Create Publisher Account</Link>
+              <Link href="/contact" className="rounded-lg border-2 border-white/20 bg-white/5 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10">Contact Publisher Team</Link>
             </div>
           </div>
         </section>
