@@ -102,13 +102,14 @@ export function getAllStaticPosts(): StaticPost[] {
   );
 }
 
-/** Shape compatible with list cards (Sanity Post-like) */
+/** Shape compatible with list cards and Sanity Post (includes body for type compatibility) */
 export function getAllStaticPostsForList(): Array<{
   _id: string;
   title: string;
   slug: { current: string };
   excerpt: string;
   publishedAt: string;
+  body: unknown[];
   mainImage?: { asset: { url: string }; alt?: string };
 }> {
   return getAllStaticPosts().map((p) => ({
@@ -117,6 +118,7 @@ export function getAllStaticPostsForList(): Array<{
     slug: { current: p.slug },
     excerpt: p.excerpt,
     publishedAt: p.publishedAt,
+    body: [],
     mainImage: { asset: { url: p.mainImage }, alt: p.mainImageAlt },
   }));
 }
