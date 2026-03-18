@@ -53,9 +53,31 @@ export default function ContactContent() {
     subject: "",
     message: "",
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus("sending");
+    setErrorMessage("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMessage(data.error || "Something went wrong. Please try again.");
+        return;
+      }
+      setStatus("success");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error. Please try again or email us directly.");
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -153,7 +175,7 @@ export default function ContactContent() {
               <p className="mt-2 text-sm text-zinc-400">
                 Fill out the form below and we&apos;ll respond within 24-48 hours.
               </p>
-              <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              <form onSubmit={handleSubmit} className="mt-6 space-y-5" suppressHydrationWarning>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-zinc-300">
@@ -219,12 +241,23 @@ export default function ContactContent() {
                     placeholder="How can we help?"
                   />
                 </div>
+                {status === "success" && (
+                <p className="rounded-lg bg-green-500/20 px-4 py-3 text-sm text-green-400">
+                  Message sent. We&apos;ll get back to you within 24–48 hours.
+                </p>
+              )}
+              {status === "error" && (
+                <p className="rounded-lg bg-red-500/20 px-4 py-3 text-sm text-red-400">
+                  {errorMessage}
+                </p>
+              )}
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500"
+                  disabled={status === "sending"}
+                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Send message
-                  <span aria-hidden>→</span>
+                  {status === "sending" ? "Sending…" : "Send message"}
+                  {status !== "sending" && <span aria-hidden>→</span>}
                 </button>
               </form>
             </motion.div>

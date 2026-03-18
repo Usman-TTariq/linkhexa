@@ -48,14 +48,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
         suppressHydrationWarning
       >
-        {/* Strip extension-injected attrs (e.g. bis_skin_checked from password managers) so hydration matches */}
+        {/* Strip extension-injected attrs (password managers, form extensions) so hydration matches */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function stripExtensionAttrs() {
   try {
+    var attrs = ['bis_skin_checked', 'fdprocessedid'];
     var strip = function() {
-      document.querySelectorAll('[bis_skin_checked]').forEach(function(el) { el.removeAttribute('bis_skin_checked'); });
+      attrs.forEach(function(attr) {
+        document.querySelectorAll('[' + attr + ']').forEach(function(el) { el.removeAttribute(attr); });
+      });
     };
     strip();
     if (document.readyState === 'loading') {
@@ -64,7 +67,7 @@ export default function RootLayout({
     document.addEventListener('DOMContentLoaded', function() {
       strip();
       var obs = new MutationObserver(function() { strip(); });
-      obs.observe(document.documentElement, { attributes: true, attributeFilter: ['bis_skin_checked'], subtree: true });
+      obs.observe(document.documentElement, { attributes: true, attributeFilter: attrs, subtree: true });
       setTimeout(function() { obs.disconnect(); }, 5000);
     });
   } catch (e) {}
