@@ -11,7 +11,7 @@ const navLinks = [
   { href: "/advertisers", label: "Advertisers" },
   { href: "/publishers", label: "Publishers" },
   { href: "/about", label: "About" },
-  { href: "/#blog", label: "Blog" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -48,7 +48,7 @@ export default function Navbar() {
                 {i === 2 && <span className="text-zinc-500">|</span>}
                 <Link
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-white ${(link.href === "/" && pathname === "/") || (link.href === "/about" && pathname === "/about") || (link.href === "/contact" && pathname === "/contact") || (link.href === "/advertisers" && pathname === "/advertisers") || (link.href === "/publishers" && pathname === "/publishers") ? "text-indigo-400" : "text-zinc-400"}`}
+                  className={`text-sm font-medium transition-colors hover:text-white ${(link.href === "/" && pathname === "/") || (link.href === "/about" && pathname === "/about") || (link.href === "/contact" && pathname === "/contact") || (link.href === "/advertisers" && pathname === "/advertisers") || (link.href === "/publishers" && pathname === "/publishers") || (link.href === "/blog" && pathname?.startsWith("/blog")) ? "text-indigo-400" : "text-zinc-400"}`}
                 >
                   {link.label}
                 </Link>

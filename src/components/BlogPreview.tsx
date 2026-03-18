@@ -5,14 +5,26 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getLatestPosts, type Post } from "@/sanity/queries";
+import { getAllStaticPostsForList } from "@/data/blogPosts";
+
+type ListPost = Post;
+
+function mergeAndSort(staticPosts: ListPost[], sanityPosts: Post[]): ListPost[] {
+  const combined = [...staticPosts, ...sanityPosts];
+  return combined.sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+}
 
 export default function BlogPreview() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<ListPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLatestPosts(3)
-      .then(setPosts)
+    const staticPosts = getAllStaticPostsForList();
+    getLatestPosts(10)
+      .then((sanityPosts) => mergeAndSort(staticPosts, sanityPosts))
+      .then((merged) => setPosts(merged.slice(0, 3)))
       .finally(() => setLoading(false));
   }, []);
 

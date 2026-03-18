@@ -5,14 +5,25 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getAllPosts, type Post } from "@/sanity/queries";
+import { getAllStaticPostsForList } from "@/data/blogPosts";
+
+type ListPost = Post;
+
+function mergeAndSort(staticPosts: ListPost[], sanityPosts: Post[]): ListPost[] {
+  const combined = [...staticPosts, ...sanityPosts];
+  return combined.sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+}
 
 export default function BlogList() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<ListPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const staticPosts = getAllStaticPostsForList();
     getAllPosts()
-      .then(setPosts)
+      .then((sanityPosts) => setPosts(mergeAndSort(staticPosts, sanityPosts)))
       .finally(() => setLoading(false));
   }, []);
 
