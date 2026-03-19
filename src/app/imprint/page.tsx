@@ -51,6 +51,7 @@ export default function ImprintPage() {
                   <h2 className="mb-4 text-lg font-semibold text-white">Imprint</h2>
                   <div className="space-y-1 text-sm text-zinc-400">
                     <p className="font-semibold text-white">LINKHEXA LLC</p>
+                    <p className="font-semibold text-white">File No: 844981647</p>
                     <p>Office of the Secretary of State, Illinois</p>
                     <p>Phone: +1 510 863 1830</p>
                     <p>811 Wilshire Blvd Ste 1753</p>
