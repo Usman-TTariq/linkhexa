@@ -49,11 +49,39 @@ export default function LoginContent() {
         setErrorMessage("Login failed. Please try again.");
         return;
       }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("approval_status")
-        .eq("id", authData.session.user.id)
-        .single();
+      const user = authData.session.user;
+      let { data: profile } = await supabase.from("profiles").select("approval_status").eq("id", user.id).maybeSingle();
+
+      if (!profile) {
+        const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+        const bootstrap = await fetch("/api/signup/complete", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: typeof meta.username === "string" ? meta.username : "",
+            role: meta.role === "advertiser" || meta.role === "publisher" ? meta.role : "publisher",
+            email: user.email ?? "",
+            company_name: typeof meta.company_name === "string" ? meta.company_name : null,
+            website: typeof meta.website === "string" ? meta.website : null,
+            company_description: typeof meta.company_description === "string" ? meta.company_description : null,
+            payment_email: typeof meta.payment_email === "string" ? meta.payment_email : null,
+            tax_id: typeof meta.tax_id === "string" ? meta.tax_id : null,
+            address: typeof meta.address === "string" ? meta.address : null,
+            city: typeof meta.city === "string" ? meta.city : null,
+            country: typeof meta.country === "string" ? meta.country : null,
+          }),
+        });
+        if (!bootstrap.ok) {
+          setStatus("error");
+          setErrorMessage("Your account has no profile record yet. Please contact support or try signing up again.");
+          await supabase.auth.signOut();
+          return;
+        }
+        const refetch = await supabase.from("profiles").select("approval_status").eq("id", user.id).maybeSingle();
+        profile = refetch.data ?? null;
+      }
+
       const statusFromDb = profile?.approval_status;
       if (statusFromDb !== "approved") {
         await supabase.auth.signOut();

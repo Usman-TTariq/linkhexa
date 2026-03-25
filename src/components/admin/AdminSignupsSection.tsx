@@ -56,16 +56,18 @@ export default function AdminSignupsSection() {
 
   return (
     <>
-      <h1
-        className="text-2xl font-bold text-white"
-        style={{ fontFamily: "var(--font-libre-baskerville), serif" }}
-      >
-        Admin Dashboard
-      </h1>
-      <p className="mt-1 text-zinc-400">Manage signups and approve accounts so users can log in.</p>
+      <section id="admin-all-signups">
+        <h2
+          className="text-xl font-bold text-white sm:text-2xl"
+          style={{ fontFamily: "var(--font-libre-baskerville), serif" }}
+        >
+          All signups
+        </h2>
+        <p className="mt-1 text-zinc-400">Approve or reject accounts so publishers can use the dashboard.</p>
+      </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-white">Signups</h2>
+        <h3 className="text-lg font-semibold text-white">Directory</h3>
         <p className="mt-1 text-sm text-zinc-500">
           Pending: {pending.length} · Approved: {approved.length} · Rejected: {rejected.length}
         </p>

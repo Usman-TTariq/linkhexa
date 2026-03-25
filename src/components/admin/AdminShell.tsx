@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const signupsNav = [{ href: "/admin", label: "Signups" }];
+const signupsNav = [{ href: "/admin", label: "Dashboard" }];
 
 const awinApiNav = [
   { href: "/admin/awin/connection", label: "Connection" },
@@ -84,7 +84,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Admin menu</p>
           <nav className="mt-2 flex gap-2 overflow-x-auto pb-1 text-sm">
             <Link href="/admin" className="shrink-0 rounded-md border border-white/10 px-2.5 py-1.5 text-zinc-300">
-              Signups
+              Dashboard
             </Link>
             {awinApiNav.map((item) => (
               <Link
@@ -100,7 +100,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-zinc-900/50 py-6 pl-4 pr-3 md:block lg:w-64">
           <nav className="space-y-6">
             <div>
-              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">General</p>
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Overview</p>
               <ul className="mt-2 space-y-0.5">
                 {signupsNav.map((item) => (
                   <li key={item.href}>

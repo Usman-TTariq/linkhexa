@@ -99,20 +99,52 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("programmeId");
-  const programmeId = raw ? Number(raw) : NaN;
-  if (!Number.isFinite(programmeId)) {
-    return NextResponse.json({ error: "programmeId query required" }, { status: 400 });
+  const supabase = createServerSupabaseClient();
+  const origin = getSiteOrigin();
+
+  /** Dashboard: all short links for this publisher (newest first). */
+  if (raw == null || raw.trim() === "") {
+    const { data, error } = await supabase
+      .from("publisher_go_links")
+      .select("slug, target_url, deep_link, created_at, click_count, programme_id, awin_programmes(name)")
+      .eq("publisher_id", pub.userId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const links = (data ?? []).map((row) => {
+      const ap = row.awin_programmes as { name?: string } | null | undefined;
+      return {
+        slug: row.slug,
+        shortUrl: `${origin}/go/short/${row.slug}`,
+        targetUrl: row.target_url,
+        deepLink: row.deep_link,
+        createdAt: row.created_at,
+        clickCount: row.click_count,
+        programmeId: row.programme_id,
+        brandName: ap?.name ?? null,
+      };
+    });
+
+    return NextResponse.json({ links });
   }
 
-  const access = await assertBrandAccess(createServerSupabaseClient(), pub.userId, programmeId);
+  const programmeId = Number(raw);
+  if (!Number.isFinite(programmeId)) {
+    return NextResponse.json({ error: "Invalid programmeId" }, { status: 400 });
+  }
+
+  const access = await assertBrandAccess(supabase, pub.userId, programmeId);
   if (!access.ok) {
     return NextResponse.json({ error: access.message }, { status: access.status });
   }
 
-  const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("publisher_go_links")
-    .select("slug, target_url, deep_link, created_at")
+    .select("slug, target_url, deep_link, created_at, click_count")
     .eq("publisher_id", pub.userId)
     .eq("programme_id", programmeId)
     .order("created_at", { ascending: false })
@@ -122,13 +154,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const origin = getSiteOrigin();
   const links = (data ?? []).map((row) => ({
     slug: row.slug,
     shortUrl: `${origin}/go/short/${row.slug}`,
     targetUrl: row.target_url,
     deepLink: row.deep_link,
     createdAt: row.created_at,
+    clickCount: row.click_count,
   }));
 
   return NextResponse.json({ links });

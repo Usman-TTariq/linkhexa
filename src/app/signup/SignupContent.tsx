@@ -155,6 +155,35 @@ export default function SignupContent() {
         setErrorMessage("Sign up failed. Please try again.");
         return;
       }
+      if (!authData.session) {
+        setStatus("idle");
+        router.push("/signup/thank-you?verify=1");
+        return;
+      }
+      const completeRes = await fetch("/api/signup/complete", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username.trim(),
+          role,
+          email: email.trim(),
+          company_name: companyName.trim() || null,
+          website: website.trim() || null,
+          company_description: companyDescription.trim() || null,
+          payment_email: paymentEmail.trim() || null,
+          tax_id: taxId.trim() || null,
+          address: address.trim() || null,
+          city: city.trim() || null,
+          country: country.trim() || null,
+        }),
+      });
+      const completeJson = (await completeRes.json().catch(() => ({}))) as { error?: string };
+      if (!completeRes.ok) {
+        setStatus("error");
+        setErrorMessage(completeJson.error ?? "Account created but profile could not be saved. Try logging in, or contact support.");
+        return;
+      }
       setStatus("idle");
       router.push("/signup/thank-you");
     } catch (err) {

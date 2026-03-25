@@ -27,6 +27,7 @@ type GoLinkRow = {
   targetUrl: string;
   deepLink: boolean;
   createdAt: string;
+  clickCount: number;
 };
 
 type TabId = "overview" | "commission" | "tracking" | "terms" | "creative";
@@ -552,6 +553,10 @@ export default function BrandDetailContent({ programmeId }: { programmeId: strin
                         <div className="min-w-0 flex-1">
                           <p className="break-all font-mono text-sm text-indigo-200">{row.shortUrl}</p>
                           <p className="mt-1 break-all text-xs text-zinc-500">{row.targetUrl}</p>
+                          <p className="mt-1 text-xs text-zinc-500">
+                            Clicks:{" "}
+                            <span className="font-mono tabular-nums text-zinc-300">{Number(row.clickCount || 0).toLocaleString()}</span>
+                          </p>
                           {row.deepLink && (
                             <span className="mt-1 inline-block text-[10px] font-semibold uppercase tracking-wider text-violet-400">
                               Deep link

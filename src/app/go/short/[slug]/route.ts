@@ -23,5 +23,10 @@ export async function GET(_request: Request, { params }: Params) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // Track clicks on the publisher's generated tracking links.
+  // (If click increment fails for any reason, we still redirect to avoid breaking user flow.)
+  const { error: incErr } = await supabase.rpc("increment_publisher_go_link_click", { p_slug: slug });
+  void incErr;
+
   return NextResponse.redirect(data.target_url, 302);
 }
