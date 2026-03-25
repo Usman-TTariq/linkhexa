@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     title: "LinkHexa | Performance Affiliate Marketing Network",
     description: "LinkHexa connects advertisers with high-quality affiliates to drive performance marketing results. Manage campaigns, track sales, and grow faster.",
   },
+  verification: {
+    google: "AMjBikCyQsL6-DwyFhxfdBZyWLfzUyZx-bmRbhrozZU",
+  },
 };
 
 export default function RootLayout({
