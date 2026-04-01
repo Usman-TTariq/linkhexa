@@ -13,25 +13,16 @@ export function isAwinConfigured(): boolean {
   return Boolean(token && publisherId);
 }
 
-/**
- * Fetches programmes from Awin. Omits `relationship` to receive the full catalogue
- * (see Awin docs: Get Program Information).
- */
-export async function fetchAwinProgrammes(options?: {
-  relationship?: "joined" | "pending" | "suspended" | "rejected" | "notjoined";
-  countryCode?: string;
-  includeHidden?: boolean;
-}): Promise<AwinProgramme[]> {
-  const { token, publisherId } = getConfig();
-  if (!token || !publisherId) {
-    throw new Error("Missing AWIN_API_TOKEN or AWIN_PUBLISHER_ID");
-  }
-
+async function fetchProgrammesPage(
+  publisherId: string,
+  token: string,
+  query: Record<string, string>
+): Promise<AwinProgramme[]> {
   const url = new URL(`${AWIN_BASE}/publishers/${publisherId}/programmes`);
   url.searchParams.set("accessToken", token);
-  if (options?.relationship) url.searchParams.set("relationship", options.relationship);
-  if (options?.countryCode) url.searchParams.set("countryCode", options.countryCode);
-  if (options?.includeHidden === true) url.searchParams.set("includeHidden", "true");
+  for (const [k, v] of Object.entries(query)) {
+    if (v !== "") url.searchParams.set(k, v);
+  }
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -51,6 +42,146 @@ export async function fetchAwinProgrammes(options?: {
     throw new Error("Awin API returned unexpected JSON (expected array)");
   }
   return data as AwinProgramme[];
+}
+
+/**
+ * Fetches programmes from Awin. Omits `relationship` to receive the full catalogue
+ * (see Awin docs: Get Program Information).
+ *
+ * Awin returns **400** if `includeHidden` and `relationship` are sent together
+ * ("includeHidden cannot be used when specifying a relationship").
+ *
+ * For `relationship=joined` we only paginate that filter (no second `includeHidden` call — lighter and matches the public Awin URL).
+ */
+export type AwinJoinedFetchStats = {
+  relationshipUniqueCount: number;
+  /** Sum of JSON array lengths from every `relationship=joined` response (raw rows; duplicates across pages possible). */
+  relationshipResponseRowTotal: number;
+  /** Reserved; always null (includeHidden merge removed). */
+  includeHiddenResponseRowCount: number | null;
+  /** Same as `relationshipUniqueCount` (kept for older admin JSON consumers). */
+  mergedUniqueCount: number;
+};
+
+async function fetchAwinJoinedProgrammesWithStatsInner(
+  publisherId: string,
+  token: string,
+  countryCode?: string
+): Promise<{
+  programmes: AwinProgramme[];
+  relationshipJoinedProgrammes: AwinProgramme[];
+  stats: AwinJoinedFetchStats;
+}> {
+  const joinedQuery: Record<string, string> = { relationship: "joined" };
+  if (countryCode) joinedQuery.countryCode = countryCode;
+
+  let batch = await fetchProgrammesPage(publisherId, token, joinedQuery);
+  let relationshipResponseRowTotal = batch.length;
+
+  const byRelationship = new Map<number, AwinProgramme>();
+  for (const p of batch) {
+    byRelationship.set(p.id, p);
+  }
+
+  if (batch.length >= 100) {
+    let offset = batch.length;
+    for (let i = 0; i < 20; i++) {
+      let next: AwinProgramme[];
+      try {
+        next = await fetchProgrammesPage(publisherId, token, {
+          ...joinedQuery,
+          offset: String(offset),
+        });
+      } catch {
+        break;
+      }
+      if (next.length === 0) break;
+      relationshipResponseRowTotal += next.length;
+      const before = byRelationship.size;
+      for (const p of next) {
+        byRelationship.set(p.id, p);
+      }
+      if (byRelationship.size === before) break;
+      offset += next.length;
+    }
+
+    if (byRelationship.size === batch.length && batch.length >= 100 && batch.length <= 250) {
+      for (let page = 2; page <= 15; page++) {
+        let next: AwinProgramme[];
+        try {
+          next = await fetchProgrammesPage(publisherId, token, { ...joinedQuery, page: String(page) });
+        } catch {
+          break;
+        }
+        if (next.length === 0) break;
+        relationshipResponseRowTotal += next.length;
+        const before = byRelationship.size;
+        for (const p of next) {
+          byRelationship.set(p.id, p);
+        }
+        if (byRelationship.size === before) break;
+      }
+    }
+  }
+
+  const list = [...byRelationship.values()];
+  const n = list.length;
+  const stats: AwinJoinedFetchStats = {
+    relationshipUniqueCount: n,
+    relationshipResponseRowTotal,
+    includeHiddenResponseRowCount: null,
+    mergedUniqueCount: n,
+  };
+
+  return {
+    programmes: list,
+    relationshipJoinedProgrammes: list,
+    stats,
+  };
+}
+
+/** Paginated `relationship=joined` list + stats for admin/debug. */
+export async function fetchAwinJoinedProgrammesWithStats(): Promise<{
+  programmes: AwinProgramme[];
+  relationshipJoinedProgrammes: AwinProgramme[];
+  stats: AwinJoinedFetchStats;
+}> {
+  const { token, publisherId } = getConfig();
+  if (!token || !publisherId) {
+    throw new Error("Missing AWIN_API_TOKEN or AWIN_PUBLISHER_ID");
+  }
+  return fetchAwinJoinedProgrammesWithStatsInner(publisherId, token, undefined);
+}
+
+export async function fetchAwinProgrammes(options?: {
+  relationship?: "joined" | "pending" | "suspended" | "rejected" | "notjoined";
+  countryCode?: string;
+  includeHidden?: boolean;
+}): Promise<AwinProgramme[]> {
+  const { token, publisherId } = getConfig();
+  if (!token || !publisherId) {
+    throw new Error("Missing AWIN_API_TOKEN or AWIN_PUBLISHER_ID");
+  }
+
+  if (options?.relationship === "joined") {
+    const { relationshipJoinedProgrammes } = await fetchAwinJoinedProgrammesWithStatsInner(
+      publisherId,
+      token,
+      options.countryCode
+    );
+    return relationshipJoinedProgrammes;
+  }
+
+  const query: Record<string, string> = {};
+  if (options?.relationship) query.relationship = options.relationship;
+  if (options?.countryCode) query.countryCode = options.countryCode;
+
+  // Never combine includeHidden + relationship (Awin 400).
+  if (options?.includeHidden === true && !options?.relationship) {
+    query.includeHidden = "true";
+  }
+
+  return fetchProgrammesPage(publisherId, token, query);
 }
 
 /**

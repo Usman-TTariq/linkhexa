@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "../../require-admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { fetchAwinProgrammes } from "@/lib/awin/client";
+import {
+  fetchAwinJoinedProgrammesWithStats,
+  type AwinJoinedFetchStats,
+} from "@/lib/awin/client";
+import type { AwinProgramme } from "@/lib/awin/types";
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 200;
+/** PostgREST URL length caps out on huge `.in()` lists; joined publishers can have 20k+ IDs. */
+const PROGRAMME_ID_IN_CHUNK = 200;
 
 export async function GET(request: Request) {
   const err = requireAdmin(request);
@@ -38,28 +44,45 @@ export async function GET(request: Request) {
   }
 
   let joinedOnAwinCount: number | null = null;
-  let joinedOnAwinArrayLength: number | null = null;
+  let joinedAwinFetch: AwinJoinedFetchStats | null = null;
   let joinedOnAwinError: string | null = null;
   let joinedOnAwinFetchedAt: string | null = null;
-  let joinedIds: number[] = [];
+  /** Full merged joined list from Awin (used for joined view rows — no DB sync required). */
+  let joinedFromApi: AwinProgramme[] = [];
 
   try {
-    const joined = await fetchAwinProgrammes({ relationship: "joined" });
-    joinedOnAwinArrayLength = joined.length;
-    joinedIds = [...new Set(joined.map((p) => p.id))];
-    joinedOnAwinCount = joinedIds.length;
+    const { relationshipJoinedProgrammes, stats: jStats } = await fetchAwinJoinedProgrammesWithStats();
+    joinedFromApi = relationshipJoinedProgrammes;
+    joinedAwinFetch = jStats;
+    /** Matches GET .../programmes?relationship=joined (unique after pagination), not the includeHidden merge. */
+    joinedOnAwinCount = jStats.relationshipUniqueCount;
     joinedOnAwinFetchedAt = new Date().toISOString();
   } catch (e) {
     joinedOnAwinError = e instanceof Error ? e.message : "Could not load joined programmes from Awin";
   }
 
+  /**
+   * Optional: chunked DB overlap count (100+ round-trips for large publishers).
+   * Only when `overlap=1` — avoids slowing every admin programmes request.
+   */
   let joinedPresentInDbCount: number | null = null;
-  if (joinedIds.length > 0) {
-    const { count, error: jdbErr } = await supabase
-      .from("awin_programmes")
-      .select("*", { count: "exact", head: true })
-      .in("programme_id", joinedIds);
-    if (!jdbErr) joinedPresentInDbCount = count ?? 0;
+  if (searchParams.get("overlap") === "1" && joinedFromApi.length > 0) {
+    const joinedIds = joinedFromApi.map((p) => p.id);
+    let sum = 0;
+    let jdbErr: Error | null = null;
+    for (let i = 0; i < joinedIds.length; i += PROGRAMME_ID_IN_CHUNK) {
+      const chunk = joinedIds.slice(i, i + PROGRAMME_ID_IN_CHUNK);
+      const { count, error } = await supabase
+        .from("awin_programmes")
+        .select("*", { count: "exact", head: true })
+        .in("programme_id", chunk);
+      if (error) {
+        jdbErr = new Error(error.message);
+        break;
+      }
+      sum += count ?? 0;
+    }
+    if (!jdbErr) joinedPresentInDbCount = sum;
   }
 
   let programmes: {
@@ -76,23 +99,22 @@ export async function GET(request: Request) {
   let safePage = 1;
 
   if (view === "joined") {
-    if (joinedOnAwinError || joinedIds.length === 0) {
+    if (joinedOnAwinError || joinedFromApi.length === 0) {
       total = 0;
       totalPages = 1;
       safePage = 1;
       programmes = [];
     } else {
-      const { data: allJoinedRows, error: listErr } = await supabase
-        .from("awin_programmes")
-        .select("programme_id, name, display_url, logo_url, programme_status, synced_at")
-        .in("programme_id", joinedIds)
-        .order("name", { ascending: true });
-
-      if (listErr) {
-        return NextResponse.json({ error: listErr.message }, { status: 500 });
-      }
-
-      const rows = allJoinedRows ?? [];
+      const fetchedAt = joinedOnAwinFetchedAt ?? new Date().toISOString();
+      const rows = joinedFromApi.map((p) => ({
+        programme_id: p.id,
+        name: p.name ?? "",
+        display_url: p.displayUrl ?? null,
+        logo_url: p.logoUrl ?? null,
+        programme_status: p.status ?? null,
+        synced_at: fetchedAt,
+      }));
+      rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }));
       total = rows.length;
       totalPages = Math.max(1, Math.ceil(total / limit));
       safePage = Math.min(page, totalPages);
@@ -165,7 +187,7 @@ export async function GET(request: Request) {
       totalSynced: totalSynced ?? 0,
       activeCatalogueCount: activeCatalogueCount ?? 0,
       joinedOnAwinCount,
-      joinedOnAwinArrayLength,
+      joinedAwinFetch,
       joinedPresentInDbCount,
       joinedOnAwinFetchedAt,
       joinedOnAwinError,

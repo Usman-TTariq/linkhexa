@@ -6,6 +6,7 @@ import { fetchAwinProgrammes } from "@/lib/awin/client";
 const DEFAULT_LIMIT = 12;
 const MAX_LIMIT = 48;
 const MIN_LIMIT = 6;
+const PROGRAMME_ID_IN_CHUNK = 200;
 
 export async function GET(request: Request) {
   const pub = await requireApprovedPublisher();
@@ -53,22 +54,35 @@ export async function GET(request: Request) {
     });
   }
 
-  const { data: programmes, error: pErr } = await supabase
-    .from("awin_programmes")
-    .select("programme_id, name, display_url, logo_url, description, programme_status")
-    .in("programme_id", joinedIds)
-    .order("name", { ascending: true });
-
-  if (pErr) {
-    return NextResponse.json({ error: pErr.message }, { status: 500 });
+  type ProgRow = {
+    programme_id: number;
+    name: string;
+    display_url: string | null;
+    logo_url: string | null;
+    description: string | null;
+    programme_status: string | null;
+  };
+  const programmes: ProgRow[] = [];
+  for (let i = 0; i < joinedIds.length; i += PROGRAMME_ID_IN_CHUNK) {
+    const chunk = joinedIds.slice(i, i + PROGRAMME_ID_IN_CHUNK);
+    const { data: part, error: pErr } = await supabase
+      .from("awin_programmes")
+      .select("programme_id, name, display_url, logo_url, description, programme_status")
+      .in("programme_id", chunk)
+      .order("name", { ascending: true });
+    if (pErr) {
+      return NextResponse.json({ error: pErr.message }, { status: 500 });
+    }
+    programmes.push(...(part ?? []));
   }
+  programmes.sort((a, b) => (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }));
 
   const byProgramme = new Map<number, string>();
   for (const a of apps ?? []) {
     byProgramme.set(Number(a.programme_id), a.status as string);
   }
 
-  const brands = (programmes ?? []).map((row) => {
+  const brands = programmes.map((row) => {
     const programmeId = Number(row.programme_id);
     const applicationStatus = byProgramme.get(programmeId);
     let uiStatus: "not_applied" | "pending" | "approved" | "rejected";

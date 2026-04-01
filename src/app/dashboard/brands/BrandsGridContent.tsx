@@ -355,8 +355,16 @@ export default function BrandsGridContent() {
                     Showing <span className="font-medium text-zinc-300">{pg.rangeFrom}</span>–
                     <span className="font-medium text-zinc-300">{pg.rangeTo}</span> of{" "}
                     <span className="font-medium text-zinc-300">{pg.total}</span>
+                    {approvedOnly ? " approved brands" : " brands in sync"}
                     {joinedOnAwinCount > 0 && !approvedOnly && (
-                      <span className="text-zinc-600"> · {joinedOnAwinCount} joined on Awin</span>
+                      <span className="text-zinc-600">
+                        {" "}
+                        ·{" "}
+                        <span className="tabular-nums font-medium text-zinc-400">
+                          {joinedOnAwinCount.toLocaleString()}
+                        </span>{" "}
+                        joined on Awin (live API)
+                      </span>
                     )}
                   </p>
                   <div className="flex items-center justify-center gap-2 sm:justify-end">

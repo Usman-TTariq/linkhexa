@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { AwinJoinedFetchStats } from "@/lib/awin/client";
 
 type Row = {
   programme_id: number;
@@ -15,7 +16,7 @@ type Stats = {
   totalSynced: number;
   activeCatalogueCount: number;
   joinedOnAwinCount: number | null;
-  joinedOnAwinArrayLength?: number | null;
+  joinedAwinFetch?: AwinJoinedFetchStats | null;
   joinedPresentInDbCount?: number | null;
   joinedOnAwinFetchedAt?: string | null;
   joinedOnAwinError: string | null;
@@ -37,7 +38,7 @@ export default function AwinProgramsContent() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [view, setView] = useState<"active" | "all" | "joined">("active");
+  const [view, setView] = useState<"active" | "all" | "joined">("joined");
   const [page, setPage] = useState(1);
 
   const fetchPrograms = useCallback(async (p: number, v: "active" | "all" | "joined") => {
@@ -69,7 +70,13 @@ export default function AwinProgramsContent() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage(`Synced ${data.upserted ?? 0} programme(s) from Awin.`);
+        const up = data.upserted ?? 0;
+        const rm = typeof data.removed === "number" ? data.removed : 0;
+        setMessage(
+          rm > 0
+            ? `Synced ${up} joined programme(s) from Awin; removed ${rm} stale row(s) from the database.`
+            : `Synced ${up} joined programme(s) from Awin.`
+        );
         setPage(1);
         await fetchPrograms(1, view);
       } else {
@@ -100,8 +107,11 @@ export default function AwinProgramsContent() {
         Awin — Programs
       </h1>
       <p className="mt-2 text-sm text-zinc-400">
-        Cached catalogue from GET <code className="rounded bg-white/10 px-1 text-xs">/publishers/&#123;id&#125;/programmes</code>.
-        Supabase caps each request at 1000 rows — totals below use exact counts; the table is paged.
+        <strong className="font-medium text-zinc-300">Joined on Awin</strong> reads live from{" "}
+        <code className="rounded bg-white/10 px-1 text-xs">relationship=joined</code> (no DB).
+        <strong className="ml-1 font-medium text-zinc-300">Active / All</strong> read{" "}
+        <code className="rounded bg-white/10 px-1 text-xs">awin_programmes</code> — after sync that table only holds
+        joined programmes (not the full Awin catalogue).
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <button
@@ -110,7 +120,7 @@ export default function AwinProgramsContent() {
           disabled={syncing}
           className="rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-50"
         >
-          {syncing ? "Syncing…" : "Sync from Awin"}
+          {syncing ? "Syncing…" : "Sync joined programmes"}
         </button>
         {message && <span className="text-sm text-zinc-400">{message}</span>}
       </div>
@@ -120,38 +130,48 @@ export default function AwinProgramsContent() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Total synced (DB)</p>
             <p className="mt-1 text-lg font-semibold text-white">{stats.totalSynced.toLocaleString()}</p>
-            <p className="text-xs text-zinc-500">All programmes stored after sync</p>
+            <p className="text-xs text-zinc-500">Joined programmes in DB after sync</p>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Active catalogue</p>
             <p className="mt-1 text-lg font-semibold text-teal-300">{stats.activeCatalogueCount.toLocaleString()}</p>
-            <p className="text-xs text-zinc-500">Awin status Active (not Hidden)</p>
+            <p className="text-xs text-zinc-500">Joined subset with status Active (not Hidden)</p>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Joined on Awin (API)</p>
             {stats.joinedOnAwinCount !== null ? (
-              <p className="mt-1 text-lg font-semibold text-indigo-300">{stats.joinedOnAwinCount.toLocaleString()}</p>
+              <>
+                <p className="mt-1 text-lg font-semibold text-indigo-300">
+                  {stats.joinedOnAwinCount.toLocaleString()}
+                </p>
+                <p className="text-xs text-zinc-500">
+                  Unique programmes from paginated{" "}
+                  <code className="text-zinc-400">GET …/programmes?relationship=joined</code> — same as the Joined tab and
+                  what Sync writes to the database.
+                </p>
+              </>
             ) : (
               <p className="mt-1 text-sm text-amber-400/90">—</p>
             )}
-            {stats.joinedOnAwinArrayLength != null &&
-              stats.joinedOnAwinCount != null &&
-              stats.joinedOnAwinArrayLength !== stats.joinedOnAwinCount && (
-                <p className="mt-0.5 text-xs text-zinc-500">
-                  {stats.joinedOnAwinArrayLength} rows in response (duplicate programme ids collapsed)
-                </p>
-              )}
-            <p className="text-xs text-zinc-500">
-              Live call: <code className="text-zinc-400">GET …/programmes?relationship=joined</code>. Awin docs:{" "}
-              <code className="text-zinc-400">includeHidden</code> cannot be combined with{" "}
-              <code className="text-zinc-400">relationship</code>, so this is exactly what that endpoint returns — not
-              necessarily the same filter as every screen in the Awin UI (e.g. region, “active advertisers”, or
-              pagination can show ~150 while the API returns more).
-            </p>
+            {stats.joinedAwinFetch && stats.joinedOnAwinCount !== null && (
+              <p className="mt-2 text-xs text-zinc-500">
+                <code className="text-zinc-400">relationship=joined</code> (paginated):{" "}
+                <strong className="text-zinc-300">{stats.joinedAwinFetch.relationshipUniqueCount.toLocaleString()}</strong>{" "}
+                unique IDs ·{" "}
+                <strong className="text-zinc-300">{stats.joinedAwinFetch.relationshipResponseRowTotal.toLocaleString()}</strong>{" "}
+                raw JSON rows (sum of pages)
+              </p>
+            )}
             {stats.joinedPresentInDbCount != null && stats.joinedOnAwinCount != null && (
-              <p className="mt-1 text-xs text-zinc-500">
-                In sync cache: <strong className="text-zinc-300">{stats.joinedPresentInDbCount.toLocaleString()}</strong> of{" "}
-                {stats.joinedOnAwinCount.toLocaleString()} joined IDs
+              <p className="mt-2 text-xs text-zinc-500">
+                DB overlap (optional <code className="text-zinc-400">?overlap=1</code>):{" "}
+                <strong className="text-zinc-300">{stats.joinedPresentInDbCount.toLocaleString()}</strong> of{" "}
+                {stats.joinedOnAwinCount.toLocaleString()} joined IDs also in sync cache
+              </p>
+            )}
+            {stats.joinedPresentInDbCount == null && stats.joinedOnAwinCount !== null && (
+              <p className="mt-2 text-xs text-zinc-500">
+                Joined tab is live API; Active/All use the database — run Sync joined programmes to refresh that cache.
               </p>
             )}
             {stats.joinedOnAwinFetchedAt && (
@@ -200,7 +220,7 @@ export default function AwinProgramsContent() {
         {pagination && pagination.total > 0 && (
           <span className="text-sm text-zinc-500">
             Page {pagination.page} of {pagination.totalPages} · showing {rows.length} of {pagination.total.toLocaleString()}{" "}
-            {view === "active" ? "active" : view === "joined" ? "joined (in your sync cache)" : "total"}
+            {view === "active" ? "active" : view === "joined" ? "joined (live from Awin API)" : "total"}
             {view === "joined" &&
               stats?.joinedOnAwinCount != null &&
               stats.joinedPresentInDbCount != null &&
@@ -214,7 +234,7 @@ export default function AwinProgramsContent() {
           </span>
         )}
         {pagination && view === "joined" && pagination.total === 0 && !stats?.joinedOnAwinError && (
-          <span className="text-sm text-zinc-500">No joined programmes in your database match — run Sync from Awin.</span>
+          <span className="text-sm text-zinc-500">Awin reported no joined programmes for this publisher.</span>
         )}
         {view === "joined" && stats?.joinedOnAwinError && (
           <span className="text-sm text-red-400/90">Awin joined list failed: {stats.joinedOnAwinError}</span>
@@ -235,13 +255,13 @@ export default function AwinProgramsContent() {
       )}
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-white/10 bg-zinc-900/80">
-        {totalSynced === 0 && !syncing ? (
-          <p className="p-6 text-center text-zinc-500">No programmes in database yet. Run sync.</p>
+        {totalSynced === 0 && !syncing && view !== "joined" ? (
+          <p className="p-6 text-center text-zinc-500">No programmes in database yet. Run Sync joined programmes.</p>
         ) : rows.length === 0 && view === "joined" ? (
           <p className="p-6 text-center text-zinc-500">
             {stats?.joinedOnAwinError
               ? "Could not load joined programmes from Awin."
-              : "No rows — either none joined on Awin or they are missing from your last sync. Run Sync from Awin."}
+              : "No joined programmes returned by Awin for this account."}
           </p>
         ) : rows.length === 0 ? (
           <p className="p-6 text-center text-zinc-500">No rows on this page.</p>
@@ -253,7 +273,7 @@ export default function AwinProgramsContent() {
                 <th className="p-3 font-medium">Name</th>
                 <th className="p-3 font-medium">Website</th>
                 <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium">Synced</th>
+                <th className="p-3 font-medium">{view === "joined" ? "Fetched" : "Synced"}</th>
               </tr>
             </thead>
             <tbody>

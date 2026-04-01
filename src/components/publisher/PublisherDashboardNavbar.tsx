@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 function ChevronDown({ className }: { className?: string }) {
   return (
@@ -39,21 +38,25 @@ export default function PublisherDashboardNavbar() {
   const [brandsOpen, setBrandsOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [avatarInitial, setAvatarInitial] = useState("?");
+  const [impersonating, setImpersonating] = useState(false);
+  const [backLoading, setBackLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const dashboardActive = pathname === "/dashboard";
   const brandsActive = pathname?.startsWith("/dashboard/brands") ?? false;
 
   useEffect(() => {
-    const supabase = createClient();
     void (async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.user) return;
-      const { data: row } = await supabase.from("profiles").select("username").eq("id", session.user.id).maybeSingle();
-      const label = row?.username?.trim() || session.user.email?.split("@")[0] || "?";
-      setAvatarInitial((label[0] || "?").toUpperCase());
+      try {
+        const res = await fetch("/api/publisher/session", { credentials: "include" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as { username?: string; email?: string; impersonating?: boolean };
+        const label = (typeof data.username === "string" && data.username.trim()) || (typeof data.email === "string" ? data.email.split("@")[0] : "") || "?";
+        setAvatarInitial((label[0] || "?").toUpperCase());
+        setImpersonating(Boolean(data.impersonating));
+      } catch {
+        // ignore
+      }
     })();
   }, []);
 
@@ -71,13 +74,37 @@ export default function PublisherDashboardNavbar() {
     }`;
 
   const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
     router.replace("/login");
+  };
+
+  const backToAdmin = async () => {
+    setBackLoading(true);
+    try {
+      await fetch("/api/admin/impersonate/clear", { method: "POST", credentials: "include" });
+    } finally {
+      window.location.href = "/admin";
+    }
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10 bg-zinc-950/95 backdrop-blur-md supports-[backdrop-filter]:bg-zinc-950/90">
+      {impersonating && (
+        <div className="border-b border-amber-500/20 bg-amber-500/10">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 text-sm sm:px-6 lg:px-8">
+            <p className="text-amber-200/90">
+              You are viewing this dashboard as admin (publisher impersonation).
+            </p>
+            <button
+              type="button"
+              onClick={() => void backToAdmin()}
+              disabled={backLoading}
+              className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500 disabled:opacity-60"
+            >
+              {backLoading ? "Returning…" : "Back to admin"}
+            </button>
+          </div>
+        </div>
+      )}
       {/* Fixed row height so layout padding matches; border-b sits flush at bottom of this bar (no extra “black” gap below the line). */}
       <nav className="mx-auto flex h-[3.75rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-8">
@@ -194,6 +221,16 @@ export default function PublisherDashboardNavbar() {
       {mobileOpen && (
         <div className="border-t border-white/10 bg-zinc-950 px-4 py-4 lg:hidden">
           <div className="flex flex-col gap-1">
+            {impersonating && (
+              <button
+                type="button"
+                onClick={() => void backToAdmin()}
+                disabled={backLoading}
+                className="mb-2 rounded-lg bg-amber-600 px-3 py-2.5 text-left text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-60"
+              >
+                {backLoading ? "Returning…" : "Back to admin"}
+              </button>
+            )}
             <Link
               href="/dashboard"
               className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-200 hover:bg-white/5"

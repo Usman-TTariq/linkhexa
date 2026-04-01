@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 type Profile = { username: string; email: string; role: string };
 
@@ -142,24 +141,31 @@ export default function DashboardContent() {
   const [goLinksError, setGoLinksError] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
     const load = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.user) {
-        router.replace("/login");
-        return;
-      }
-      const { data: row } = await supabase.from("profiles").select("username, email, role").eq("id", session.user.id).single();
-      if (row) setProfile({ username: row.username, email: row.email, role: row.role });
-      else
+      try {
+        const res = await fetch("/api/publisher/session", { credentials: "include" });
+        if (res.status === 401) {
+          router.replace("/login");
+          return;
+        }
+        if (!res.ok) {
+          router.replace("/login");
+          return;
+        }
+        const data = (await res.json().catch(() => ({}))) as {
+          username?: string;
+          email?: string;
+          role?: string;
+        };
         setProfile({
-          username: session.user.user_metadata?.username ?? "User",
-          email: session.user.email ?? "",
-          role: session.user.user_metadata?.role ?? "publisher",
+          username: typeof data.username === "string" ? data.username : "User",
+          email: typeof data.email === "string" ? data.email : "",
+          role: typeof data.role === "string" ? data.role : "publisher",
         });
-      setLoading(false);
+        setLoading(false);
+      } catch {
+        router.replace("/login");
+      }
     };
     load();
   }, [router]);

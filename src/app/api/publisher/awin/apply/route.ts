@@ -30,7 +30,10 @@ export async function POST(request: Request) {
 
   if (exErr || !exists) {
     return NextResponse.json(
-      { error: "Programme not found. Ask an admin to sync programmes from Awin first." },
+      {
+        error:
+          "Programme not in LinkHexa cache. Join it on Awin first, then ask an admin to run Sync joined programmes.",
+      },
       { status: 404 }
     );
   }

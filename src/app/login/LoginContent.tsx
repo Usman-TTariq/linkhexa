@@ -50,6 +50,7 @@ export default function LoginContent() {
         return;
       }
       const user = authData.session.user;
+      const accessToken = authData.session.access_token;
       let { data: profile } = await supabase.from("profiles").select("approval_status").eq("id", user.id).maybeSingle();
 
       if (!profile) {
@@ -57,7 +58,10 @@ export default function LoginContent() {
         const bootstrap = await fetch("/api/signup/complete", {
           method: "POST",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({
             username: typeof meta.username === "string" ? meta.username : "",
             role: meta.role === "advertiser" || meta.role === "publisher" ? meta.role : "publisher",
@@ -82,18 +86,31 @@ export default function LoginContent() {
         profile = refetch.data ?? null;
       }
 
-      const statusFromDb = profile?.approval_status;
-      if (statusFromDb !== "approved") {
+      if (!profile) {
         await supabase.auth.signOut();
         setStatus("error");
         setErrorMessage(
-          statusFromDb === "rejected"
-            ? "Your account was not approved. Please contact support."
-            : "Your account is pending approval. You can log in once an admin approves it."
+          "We could not load your profile after sign-in. Try again in a moment, or contact support with your email."
         );
         return;
       }
-      router.push("/dashboard");
+
+      const statusFromDb = profile.approval_status;
+      if (statusFromDb === "approved") {
+        router.push("/dashboard");
+        return;
+      }
+
+      await supabase.auth.signOut();
+      setStatus("error");
+      if (statusFromDb === "rejected") {
+        setErrorMessage("Your account was not approved. Please contact support.");
+      } else if (statusFromDb === "pending") {
+        setErrorMessage("Your account is pending approval. You can log in once an admin approves it.");
+      } else {
+        setErrorMessage("Your account profile has an unexpected status. Please contact support.");
+      }
+      return;
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Login failed. Please try again.");

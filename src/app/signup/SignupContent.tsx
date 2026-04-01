@@ -163,7 +163,10 @@ export default function SignupContent() {
       const completeRes = await fetch("/api/signup/complete", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authData.session.access_token}`,
+        },
         body: JSON.stringify({
           username: username.trim(),
           role,

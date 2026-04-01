@@ -19,6 +19,7 @@ type SignupRow = {
 export default function AdminSignupsSection() {
   const [signups, setSignups] = useState<SignupRow[]>([]);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -47,6 +48,23 @@ export default function AdminSignupsSection() {
       }
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const loginAsPublisher = async (publisherId: string) => {
+    setImpersonatingId(publisherId);
+    try {
+      const res = await fetch("/api/admin/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ publisherId }),
+      });
+      if (res.ok) {
+        window.location.href = "/dashboard";
+      }
+    } finally {
+      setImpersonatingId(null);
     }
   };
 
@@ -128,6 +146,18 @@ export default function AdminSignupsSection() {
                             className="rounded bg-red-600/80 px-2 py-1 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
                           >
                             Reject
+                          </button>
+                        </span>
+                      )}
+                      {row.approval_status === "approved" && row.role === "publisher" && (
+                        <span className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => loginAsPublisher(row.id)}
+                            disabled={impersonatingId === row.id}
+                            className="rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+                          >
+                            Login as publisher
                           </button>
                         </span>
                       )}
