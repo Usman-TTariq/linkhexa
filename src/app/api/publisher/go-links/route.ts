@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { requireApprovedPublisher } from "@/lib/publisher-session";
 import { fetchAwinProgrammes, generateAwinTrackingLink, isAwinConfigured } from "@/lib/awin/client";
 import { getSiteOrigin } from "@/lib/site-origin";
+import { baseTargetUrl, normalizeDisplayUrl } from "@/lib/go-link-target";
 
 const SLUG_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
 const SLUG_LEN = 10;
@@ -16,17 +17,6 @@ function makeSlug(): string {
     s += SLUG_CHARS[buf[i]! % SLUG_CHARS.length];
   }
   return s;
-}
-
-function normalizeDisplayUrl(display: string | null): string | null {
-  if (!display?.trim()) return null;
-  const t = display.trim();
-  return t.startsWith("http") ? t : `https://${t}`;
-}
-
-function baseTargetUrl(display: string | null, clickThrough: string | null): string | null {
-  if (clickThrough?.trim()) return clickThrough.trim();
-  return normalizeDisplayUrl(display);
 }
 
 function resolveLandingInput(raw: string, displayUrl: string | null): string | null {
