@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { requireApprovedPublisher } from "@/lib/publisher-session";
 import { fetchAwinProgrammes, generateAwinTrackingLink, isAwinConfigured } from "@/lib/awin/client";
 import { getSiteOrigin } from "@/lib/site-origin";
-import { baseTargetUrl, normalizeDisplayUrl } from "@/lib/go-link-target";
+import { normalizeDisplayUrl, resolveTrackedDestination } from "@/lib/go-link-target";
 
 const SLUG_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
 const SLUG_LEN = 10;
@@ -251,7 +251,7 @@ export async function POST(request: Request) {
       );
     }
   } else {
-    targetUrl = baseTargetUrl(displayUrl, clickThrough);
+    targetUrl = await resolveTrackedDestination(programmeId, displayUrl, clickThrough);
   }
 
   if (!targetUrl) {

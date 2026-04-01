@@ -1,4 +1,7 @@
-import { fetchAwinProgrammeDetails, isAwinConfigured } from "@/lib/awin/client";
+import { generateAwinTrackingLink, isAwinConfigured } from "@/lib/awin/client";
+
+const LINK_BUILDER_CACHE_TTL_MS = 60 * 60 * 1000;
+const linkBuilderCache = new Map<string, { url: string; expires: number }>();
 
 export function normalizeDisplayUrl(display: string | null): string | null {
   if (!display?.trim()) return null;
@@ -13,24 +16,42 @@ export function baseTargetUrl(display: string | null, clickThrough: string | nul
 }
 
 /**
- * True if `storedUrl` looks like a normal destination for this programme:
- * Awin tracking host or same registrable-ish host as the merchant display URL.
+ * Tracked URL that lands on the merchant site (Link Builder), not the legacy `clickThroughUrl`
+ * from the programmes list — that URL often hits awclick.php then redirects to a wrong third-party
+ * landing configured on Awin’s side.
  */
-export function isPlausibleRedirectTarget(storedUrl: string, merchantDisplayUrl: string | null): boolean {
+async function trackingUrlToMerchantDisplay(programmeId: number, destinationNorm: string): Promise<string | null> {
+  const key = `${programmeId}|${destinationNorm}`;
+  const now = Date.now();
+  const hit = linkBuilderCache.get(key);
+  if (hit && hit.expires > now) return hit.url;
   try {
-    const u = new URL(storedUrl);
-    const h = u.hostname.toLowerCase();
-    const hNoWww = h.replace(/^www\./, "");
-    if (hNoWww.includes("awin1.com") || hNoWww.endsWith(".awin1.com")) return true;
-    if (hNoWww.includes("awin.com") && hNoWww.includes("click")) return true;
-
-    const base = normalizeDisplayUrl(merchantDisplayUrl);
-    if (!base) return true;
-    const mh = new URL(base).hostname.toLowerCase().replace(/^www\./, "");
-    return hNoWww === mh || hNoWww.endsWith(`.${mh}`);
+    const built = await generateAwinTrackingLink({
+      advertiserId: programmeId,
+      destinationUrl: destinationNorm,
+    });
+    linkBuilderCache.set(key, { url: built.url, expires: now + LINK_BUILDER_CACHE_TTL_MS });
+    return built.url;
   } catch {
-    return true;
+    return null;
   }
+}
+
+/**
+ * Best destination for a standard (non–deep-link) go link: Link Builder → merchant display URL
+ * when possible; else legacy click-through / display.
+ */
+export async function resolveTrackedDestination(
+  programmeId: number,
+  displayUrl: string | null,
+  clickThroughUrl: string | null
+): Promise<string | null> {
+  const norm = normalizeDisplayUrl(displayUrl);
+  if (isAwinConfigured() && norm) {
+    const built = await trackingUrlToMerchantDisplay(programmeId, norm);
+    if (built) return built;
+  }
+  return baseTargetUrl(displayUrl, clickThroughUrl);
 }
 
 function normalizeHref(a: string): string {
@@ -44,16 +65,4 @@ function normalizeHref(a: string): string {
 export function destinationsDiffer(a: string | null, b: string | null): boolean {
   if (!a || !b) return a !== b;
   return normalizeHref(a) !== normalizeHref(b);
-}
-
-/** Live programme details from Awin (same source as merchant listing). */
-export async function resolveDestinationFromAwinApi(programmeId: number): Promise<string | null> {
-  if (!isAwinConfigured()) return null;
-  try {
-    const d = await fetchAwinProgrammeDetails(programmeId, { relationship: "any" });
-    const info = d.programmeInfo;
-    return baseTargetUrl(info?.displayUrl ?? null, info?.clickThroughUrl ?? null);
-  } catch {
-    return null;
-  }
 }

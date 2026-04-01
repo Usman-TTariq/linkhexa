@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import {
-  baseTargetUrl,
-  destinationsDiffer,
-  isPlausibleRedirectTarget,
-  resolveDestinationFromAwinApi,
-} from "@/lib/go-link-target";
+import { destinationsDiffer, resolveTrackedDestination } from "@/lib/go-link-target";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -40,17 +35,10 @@ export async function GET(_request: Request, { params }: Params) {
   const clickThrough = ap?.click_through_url ?? null;
 
   if (!deepLink && Number.isFinite(programmeId)) {
-    const fromDb = baseTargetUrl(displayUrl, clickThrough);
-    if (fromDb && destinationsDiffer(fromDb, redirectUrl)) {
-      await supabase.from("publisher_go_links").update({ target_url: fromDb }).eq("slug", slug);
-      redirectUrl = fromDb;
-    }
-    if (!isPlausibleRedirectTarget(redirectUrl, displayUrl)) {
-      const fromApi = await resolveDestinationFromAwinApi(programmeId);
-      if (fromApi && destinationsDiffer(fromApi, redirectUrl)) {
-        await supabase.from("publisher_go_links").update({ target_url: fromApi }).eq("slug", slug);
-        redirectUrl = fromApi;
-      }
+    const canonical = await resolveTrackedDestination(programmeId, displayUrl, clickThrough);
+    if (canonical && destinationsDiffer(canonical, redirectUrl)) {
+      await supabase.from("publisher_go_links").update({ target_url: canonical }).eq("slug", slug);
+      redirectUrl = canonical;
     }
   }
 
