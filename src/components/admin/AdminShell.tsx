@@ -5,11 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const signupsNav = [{ href: "/admin", label: "Dashboard" }];
+const signupsNav = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/support", label: "Support inbox" },
+];
 
 const awinApiNav = [
   { href: "/admin/awin/connection", label: "Connection" },
   { href: "/admin/awin/programs", label: "Programs" },
+  { href: "/admin/awin/transactions", label: "Sales / transactions" },
   { href: "/admin/awin/campaigns", label: "Campaigns" },
   { href: "/admin/awin/reports", label: "Reports" },
   { href: "/admin/awin/actions", label: "Actions" },
@@ -85,6 +89,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <nav className="mt-2 flex gap-2 overflow-x-auto pb-1 text-sm">
             <Link href="/admin" className="shrink-0 rounded-md border border-white/10 px-2.5 py-1.5 text-zinc-300">
               Dashboard
+            </Link>
+            <Link href="/admin/support" className="shrink-0 rounded-md border border-white/10 px-2.5 py-1.5 text-zinc-300">
+              Support
             </Link>
             {awinApiNav.map((item) => (
               <Link

@@ -211,14 +211,13 @@ export async function POST(request: Request) {
   const displayUrl = row.display_url as string | null;
   const clickThrough = row.click_through_url as string | null;
 
-  let targetUrl: string | null = null;
-
+  let resolvedDeep: string | null = null;
   if (deepLink && landingRaw.trim()) {
-    const resolved = resolveLandingInput(landingRaw, displayUrl);
-    if (!resolved) {
+    resolvedDeep = resolveLandingInput(landingRaw, displayUrl);
+    if (!resolvedDeep) {
       return NextResponse.json({ error: "Enter a valid landing page URL or path for this store." }, { status: 400 });
     }
-    if (!hostMatchesMerchant(resolved, displayUrl)) {
+    if (!hostMatchesMerchant(resolvedDeep, displayUrl)) {
       return NextResponse.json(
         { error: "Landing page must use the same domain as this programme’s store URL." },
         { status: 400 }
@@ -233,39 +232,46 @@ export async function POST(request: Request) {
         { status: 503 }
       );
     }
-    try {
-      const built = await generateAwinTrackingLink({
-        advertiserId: programmeId,
-        destinationUrl: resolved,
-      });
-      targetUrl = built.url;
-    } catch (e) {
-      const detail = e instanceof Error ? e.message : "Unknown error";
-      return NextResponse.json(
-        {
-          error:
-            "Awin could not build a tracking link for this landing page. Some programmes disable link builder, or the URL may be invalid for this advertiser. Try without deep link or another path.",
-          detail,
-        },
-        { status: 502 }
-      );
-    }
-  } else {
-    targetUrl = await resolveTrackedDestination(programmeId, displayUrl, clickThrough);
-  }
-
-  if (!targetUrl) {
-    return NextResponse.json(
-      { error: "No destination URL available. Ask an admin to sync this programme so click-through or store URL is set." },
-      { status: 400 }
-    );
   }
 
   let slug = "";
+  let finalTargetUrl = "";
   let insertErr: { code?: string; message: string } | null = null;
 
   for (let i = 0; i < MAX_SLUG_TRIES; i++) {
     slug = makeSlug();
+
+    let targetUrl: string | null = null;
+    if (resolvedDeep) {
+      try {
+        const built = await generateAwinTrackingLink({
+          advertiserId: programmeId,
+          destinationUrl: resolvedDeep,
+          parameters: { clickRef: slug },
+        });
+        targetUrl = built.url;
+      } catch (e) {
+        const detail = e instanceof Error ? e.message : "Unknown error";
+        return NextResponse.json(
+          {
+            error:
+              "Awin could not build a tracking link for this landing page. Some programmes disable link builder, or the URL may be invalid for this advertiser. Try without deep link or another path.",
+            detail,
+          },
+          { status: 502 }
+        );
+      }
+    } else {
+      targetUrl = await resolveTrackedDestination(programmeId, displayUrl, clickThrough, slug);
+    }
+
+    if (!targetUrl) {
+      return NextResponse.json(
+        { error: "No destination URL available. Ask an admin to sync this programme so click-through or store URL is set." },
+        { status: 400 }
+      );
+    }
+
     const { error } = await supabase.from("publisher_go_links").insert({
       slug,
       publisher_id: pub.userId,
@@ -275,6 +281,7 @@ export async function POST(request: Request) {
     });
     if (!error) {
       insertErr = null;
+      finalTargetUrl = targetUrl;
       break;
     }
     if (error.code === "23505") {
@@ -291,5 +298,5 @@ export async function POST(request: Request) {
   const origin = getSiteOrigin();
   const shortUrl = `${origin}/go/short/${slug}`;
 
-  return NextResponse.json({ ok: true, slug, shortUrl, targetUrl });
+  return NextResponse.json({ ok: true, slug, shortUrl, targetUrl: finalTargetUrl });
 }

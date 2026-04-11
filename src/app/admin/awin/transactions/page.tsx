@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import AdminShell from "@/components/admin/AdminShell";
-import AwinActionsContent from "./AwinActionsContent";
+import AwinTransactionsContent from "./AwinTransactionsContent";
 
 export const metadata: Metadata = {
-  title: "Awin Actions | Admin | LinkHexa",
+  title: "Awin Sales & Transactions | Admin | LinkHexa",
 };
 
 export default function Page() {
   return (
     <AdminShell>
-      <AwinActionsContent />
+      <AwinTransactionsContent />
     </AdminShell>
   );
 }

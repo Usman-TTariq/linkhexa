@@ -11,7 +11,7 @@ export default function Page() {
     <AdminShell>
       <AwinPlaceholderContent
         title="Awin — Reports"
-        body="Performance reports (clicks, sales) will use Awin Advertiser Performance or Publisher APIs and render here."
+        body="For transaction and sale rows from Awin, open Sales / transactions in the menu. This section can host extra charts or advertiser performance later."
       />
     </AdminShell>
   );

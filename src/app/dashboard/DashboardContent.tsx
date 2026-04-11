@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import PublisherAwinTransactionsSection from "@/components/publisher/PublisherAwinTransactionsSection";
+import PublisherSupportChat from "@/components/publisher/PublisherSupportChat";
 
 type Profile = { username: string; email: string; role: string };
 
@@ -18,40 +20,82 @@ type GoLinkSummary = {
   brandName: string | null;
 };
 
-const MOCK_SITES = [
-  { name: "TechDigest Daily", url: "techdigest.example.com", status: "Approved" as const },
-  { name: "Coupon Finder", url: "coupons.example.io", status: "Approved" as const },
-  { name: "Style & Home", url: "stylehome.blog", status: "Pending" as const },
-  { name: "GameVault News", url: "gamevault.net", status: "Approved" as const },
-  { name: "Finance Brief", url: "financebrief.co", status: "Approved" as const },
-  { name: "Travel Notes", url: "travelnotes.app", status: "Approved" as const },
-  { name: "Fitness Hub", url: "fitnesshub.fit", status: "Pending" as const },
-  { name: "Crypto Weekly", url: "cryptoweekly.news", status: "Approved" as const },
-];
-
-const MOCK_TABLE_ROWS = [
-  { site: "techdigest.example.com", impressions: "124,500", ctr: "1.2%", ecpm: "$4.10", earnings: "$510.35" },
-  { site: "coupons.example.io", impressions: "89,200", ctr: "0.9%", ecpm: "$3.40", earnings: "$303.28" },
-  { site: "gamevault.net", impressions: "210,000", ctr: "1.5%", ecpm: "$5.20", earnings: "$1,092.00" },
-  { site: "financebrief.co", impressions: "45,800", ctr: "0.7%", ecpm: "$2.90", earnings: "$132.82" },
-];
-
-const MOCK_CHANNELS = [
-  { name: "Display", share: "42%", earnings: "$412.00" },
-  { name: "Native", share: "28%", earnings: "$274.50" },
-  { name: "Video", share: "18%", earnings: "$176.20" },
-  { name: "Other", share: "12%", earnings: "$117.30" },
-];
-
-const MOCK_COUNTRIES = [
-  { country: "United States", impressions: "198k", earnings: "$620.10" },
-  { country: "United Kingdom", impressions: "72k", earnings: "$241.80" },
-  { country: "Germany", impressions: "54k", earnings: "$189.40" },
-  { country: "Canada", impressions: "41k", earnings: "$132.00" },
-];
-
 function formatUsd(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+}
+
+function formatMoney(n: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+  } catch {
+    return `${n.toFixed(2)} ${currency}`;
+  }
+}
+
+type EarningsApi = {
+  days: number;
+  from: string;
+  series: { date: string; currency: string; commission: number; sale: number; transactions: number }[];
+  totals: { commissionByCurrency: Record<string, number>; saleByCurrency: Record<string, number>; transactions: number };
+};
+
+function utcTodayYmd(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function ymdAddDays(ymd: string, delta: number): string {
+  const d = new Date(`${ymd}T12:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+
+function pickPrimaryCurrency(commissionByCurrency: Record<string, number>): string {
+  if ((commissionByCurrency.USD ?? 0) > 0) return "USD";
+  const keys = Object.keys(commissionByCurrency)
+    .filter((k) => (commissionByCurrency[k] ?? 0) > 0)
+    .sort();
+  return keys[0] ?? "GBP";
+}
+
+function sumCommissionRange(
+  series: EarningsApi["series"],
+  currency: string,
+  minInclusive: string,
+  maxInclusive: string
+): number {
+  return series
+    .filter((s) => s.currency === currency && s.date >= minInclusive && s.date <= maxInclusive)
+    .reduce((a, s) => a + s.commission, 0);
+}
+
+function LiveEarningsSparkline({ points }: { points: number[] }) {
+  const w = 560;
+  const h = 160;
+  const pad = 12;
+  if (points.length === 0) {
+    return (
+      <div className="flex h-44 items-center justify-center rounded-lg border border-white/5 bg-zinc-950/40 text-sm text-zinc-500">
+        No commission in this window yet. Create tracking links (they send your link slug as Awin click ref) and run an admin sync.
+      </div>
+    );
+  }
+  const max = Math.max(...points, 1e-6);
+  const toX = (i: number) => pad + (i / Math.max(points.length - 1, 1)) * (w - pad * 2);
+  const toY = (v: number) => h - pad - (v / max) * (h - pad * 2);
+  const line = points.map((v, i) => `${toX(i)},${toY(v)}`).join(" ");
+  const area = `M ${toX(0)},${h - pad} L ${points.map((v, i) => `${toX(i)},${toY(v)}`).join(" ")} L ${toX(points.length - 1)},${h - pad} Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-44 w-full text-indigo-400" preserveAspectRatio="none" aria-hidden>
+      <defs>
+        <linearGradient id="areaFillDash" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(99,102,241)" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#areaFillDash)" />
+      <polyline fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" points={line} />
+    </svg>
+  );
 }
 
 function ProfileCompletenessRing({ percent }: { percent: number }) {
@@ -92,53 +136,16 @@ function ProfileCompletenessRing({ percent }: { percent: number }) {
   );
 }
 
-function EarningsSparkline() {
-  const w = 560;
-  const h = 160;
-  const pad = 12;
-  const series1 = [40, 55, 48, 72, 65, 88, 78, 95, 82, 100, 92, 108];
-  const series2 = [28, 38, 42, 50, 45, 58, 52, 62, 55, 68, 60, 72];
-  const max = 120;
-  const toX = (i: number) => pad + (i / (series1.length - 1)) * (w - pad * 2);
-  const toY = (v: number) => h - pad - (v / max) * (h - pad * 2);
-  const line = (pts: number[]) => pts.map((v, i) => `${toX(i)},${toY(v)}`).join(" ");
-  const area = `M ${toX(0)},${h - pad} L ${series1.map((v, i) => `${toX(i)},${toY(v)}`).join(" ")} L ${toX(series1.length - 1)},${h - pad} Z`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-44 w-full text-indigo-400" preserveAspectRatio="none" aria-hidden>
-      <defs>
-        <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgb(99,102,241)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#areaFill)" />
-      <polyline fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" points={line(series1)} />
-      <polyline
-        fill="none"
-        stroke="rgb(139,92,246)"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        opacity={0.85}
-        points={line(series2)}
-      />
-    </svg>
-  );
-}
-
-const RANGE_OPTIONS = ["Today", "Yesterday", "Last 7 days", "Last 30 days"] as const;
-
 export default function DashboardContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [range, setRange] = useState<(typeof RANGE_OPTIONS)[number]>("Last 7 days");
-  const [tableTab, setTableTab] = useState<"Sites" | "Ad units" | "Reports">("Sites");
-  const [siteQuery, setSiteQuery] = useState("");
-  const [tableQuery, setTableQuery] = useState("");
   const [goLinks, setGoLinks] = useState<GoLinkSummary[]>([]);
   const [goLinksLoading, setGoLinksLoading] = useState(false);
   const [goLinksError, setGoLinksError] = useState<string | null>(null);
+  const [earnings, setEarnings] = useState<EarningsApi | null>(null);
+  const [earningsLoading, setEarningsLoading] = useState(false);
+  const [earningsError, setEarningsError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -195,6 +202,76 @@ export default function DashboardContent() {
     };
   }, [loading, profile?.role]);
 
+  useEffect(() => {
+    if (loading || profile?.role !== "publisher") return;
+    let cancelled = false;
+    (async () => {
+      setEarningsLoading(true);
+      setEarningsError(null);
+      try {
+        const res = await fetch("/api/publisher/earnings?days=90", { credentials: "include" });
+        const data = (await res.json().catch(() => ({}))) as EarningsApi & { error?: string };
+        if (!res.ok) {
+          if (!cancelled) setEarningsError(data.error ?? "Could not load earnings.");
+          return;
+        }
+        if (!cancelled) setEarnings(data);
+      } catch {
+        if (!cancelled) setEarningsError("Could not load earnings.");
+      } finally {
+        if (!cancelled) setEarningsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, profile?.role]);
+
+  const primaryCurrency = useMemo(
+    () => (earnings ? pickPrimaryCurrency(earnings.totals.commissionByCurrency) : "USD"),
+    [earnings]
+  );
+
+  const commissionToday = useMemo(() => {
+    if (!earnings) return 0;
+    const t = utcTodayYmd();
+    return sumCommissionRange(earnings.series, primaryCurrency, t, t);
+  }, [earnings, primaryCurrency]);
+
+  const commissionYesterday = useMemo(() => {
+    if (!earnings) return 0;
+    const y = ymdAddDays(utcTodayYmd(), -1);
+    return sumCommissionRange(earnings.series, primaryCurrency, y, y);
+  }, [earnings, primaryCurrency]);
+
+  const commissionLast7 = useMemo(() => {
+    if (!earnings) return 0;
+    const end = utcTodayYmd();
+    const start = ymdAddDays(end, -6);
+    return sumCommissionRange(earnings.series, primaryCurrency, start, end);
+  }, [earnings, primaryCurrency]);
+
+  const commissionLast30 = useMemo(() => {
+    if (!earnings) return 0;
+    const end = utcTodayYmd();
+    const start = ymdAddDays(end, -29);
+    return sumCommissionRange(earnings.series, primaryCurrency, start, end);
+  }, [earnings, primaryCurrency]);
+
+  const sparklinePoints = useMemo(() => {
+    if (!earnings) return [];
+    const end = utcTodayYmd();
+    const start = ymdAddDays(end, -27);
+    const pts: number[] = [];
+    for (let d = start; d <= end; d = ymdAddDays(d, 1)) {
+      const v = earnings.series
+        .filter((s) => s.date === d && s.currency === primaryCurrency)
+        .reduce((a, s) => a + s.commission, 0);
+      pts.push(v);
+    }
+    return pts;
+  }, [earnings, primaryCurrency]);
+
   const displayName = profile?.username?.trim() || profile?.email?.split("@")[0] || "there";
   const isPublisher = profile?.role === "publisher";
   const totalLinkClicks = useMemo(
@@ -202,17 +279,22 @@ export default function DashboardContent() {
     [goLinks]
   );
 
-  const filteredSites = useMemo(() => {
-    const q = siteQuery.trim().toLowerCase();
-    if (!q) return MOCK_SITES;
-    return MOCK_SITES.filter((s) => s.name.toLowerCase().includes(q) || s.url.toLowerCase().includes(q));
-  }, [siteQuery]);
-
-  const filteredTableRows = useMemo(() => {
-    const q = tableQuery.trim().toLowerCase();
-    if (!q) return MOCK_TABLE_ROWS;
-    return MOCK_TABLE_ROWS.filter((row) => row.site.toLowerCase().includes(q));
-  }, [tableQuery]);
+  /** Real totals from the earnings API (attributed Awin data). */
+  const currencyBreakdown = useMemo(() => {
+    if (!earnings) return [];
+    const keys = new Set([
+      ...Object.keys(earnings.totals.commissionByCurrency),
+      ...Object.keys(earnings.totals.saleByCurrency),
+    ]);
+    return [...keys]
+      .sort()
+      .map((c) => ({
+        currency: c,
+        commission: earnings.totals.commissionByCurrency[c] ?? 0,
+        sale: earnings.totals.saleByCurrency[c] ?? 0,
+      }))
+      .filter((row) => row.commission > 0 || row.sale > 0);
+  }, [earnings]);
 
   if (loading) {
     return (
@@ -257,6 +339,7 @@ export default function DashboardContent() {
 
   return (
     <div className="min-h-screen pb-16">
+      <PublisherSupportChat />
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         {/* Welcome + profile ring */}
         <section className={`${cardBase} mb-8 flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-12`}>
@@ -269,8 +352,7 @@ export default function DashboardContent() {
               Welcome back, {displayName}
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400">
-              Track earnings, site performance, and channels in one place. Connect brands from the catalogue and build tracking links
-              when you are approved.
+              Track commissions and sales from synced Awin data, manage tracking links, and browse brands you&apos;re approved on.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
               <Link
@@ -294,10 +376,10 @@ export default function DashboardContent() {
           <aside className="flex flex-col gap-4">
             {(
               [
-                { label: "Total earnings", value: 0, from: "from-rose-600/90", to: "to-orange-500/80" },
-                { label: "Yesterday", value: 0, from: "from-emerald-600/90", to: "to-teal-500/80" },
-                { label: "Last 7 days", value: 0, from: "from-fuchsia-600/85", to: "to-pink-500/75" },
-                { label: "All-time", value: 0, from: "from-indigo-600/90", to: "to-blue-500/80" },
+                { label: "Today (commission)", value: commissionToday, from: "from-rose-600/90", to: "to-orange-500/80" },
+                { label: "Yesterday", value: commissionYesterday, from: "from-emerald-600/90", to: "to-teal-500/80" },
+                { label: "Last 7 days", value: commissionLast7, from: "from-fuchsia-600/85", to: "to-pink-500/75" },
+                { label: "Last 30 days", value: commissionLast30, from: "from-indigo-600/90", to: "to-blue-500/80" },
               ] as const
             ).map((c) => (
               <div
@@ -305,9 +387,14 @@ export default function DashboardContent() {
                 className={`rounded-2xl bg-gradient-to-br ${c.from} ${c.to} p-5 text-white shadow-lg shadow-black/30`}
               >
                 <p className="text-sm font-medium text-white/85">{c.label}</p>
-                <p className="mt-2 text-2xl font-bold tabular-nums tracking-tight">{formatUsd(c.value)}</p>
+                <p className="mt-2 text-2xl font-bold tabular-nums tracking-tight">
+                  {earningsLoading ? "…" : formatMoney(c.value, primaryCurrency)}
+                </p>
               </div>
             ))}
+            <p className="px-1 text-[10px] leading-relaxed text-zinc-500">
+              Shown in {primaryCurrency} from synced Awin data. Your short-link slug is sent as click ref for attribution.
+            </p>
           </aside>
 
           {/* Right column — chart + top performance */}
@@ -316,57 +403,73 @@ export default function DashboardContent() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-white">Earnings overview</h2>
-                  <p className="mt-1 text-xs text-zinc-500">Sample trend — live reporting connects here next.</p>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {RANGE_OPTIONS.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRange(r)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                        range === r
-                          ? "bg-white/10 text-white ring-1 ring-indigo-500/50"
-                          : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Last 28 days commission ({primaryCurrency}), from the database after admin syncs Awin transactions.{" "}
+                    {earnings && (
+                      <span className="text-zinc-600">
+                        {earnings.totals.transactions} attributed transaction
+                        {earnings.totals.transactions === 1 ? "" : "s"} in window.
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
+              {earningsError && (
+                <p className="mt-4 text-sm text-amber-200/90" role="alert">
+                  {earningsError}
+                </p>
+              )}
               <div className="mt-6 border-t border-white/5 pt-4">
-                <EarningsSparkline />
-                <div className="mt-2 flex justify-end gap-6 text-xs text-zinc-500">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-indigo-400" aria-hidden />
-                    Earnings
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-violet-400" aria-hidden />
-                    Impressions (scaled)
-                  </span>
-                </div>
+                {earningsLoading ? (
+                  <p className="py-12 text-center text-sm text-zinc-500">Loading earnings…</p>
+                ) : (
+                  <LiveEarningsSparkline points={sparklinePoints} />
+                )}
+                <div className="mt-2 text-xs text-zinc-500">Daily commission ({primaryCurrency}) · older links may lack click ref</div>
               </div>
               <div className="mt-8 border-t border-white/5 pt-5">
-                <h3 className="text-sm font-semibold text-zinc-300">Top performance</h3>
+                <h3 className="text-sm font-semibold text-zinc-300">Recent days</h3>
                 <div className="mt-3 overflow-x-auto rounded-xl border border-white/5">
                   <table className="w-full min-w-[420px] text-left text-sm">
                     <thead>
                       <tr className="border-b border-white/5 bg-zinc-950/50 text-xs font-medium uppercase tracking-wider text-zinc-500">
-                        <th className="px-4 py-2.5">Site</th>
-                        <th className="px-4 py-2.5">Impressions</th>
-                        <th className="px-4 py-2.5 text-right">Earnings</th>
+                        <th className="px-4 py-2.5">Date (UTC)</th>
+                        <th className="px-4 py-2.5 text-right">Commission</th>
+                        <th className="px-4 py-2.5 text-right">Txns</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {MOCK_TABLE_ROWS.slice(0, 3).map((row) => (
-                        <tr key={row.site} className="text-zinc-300">
-                          <td className="px-4 py-2.5 font-mono text-xs text-zinc-400">{row.site}</td>
-                          <td className="px-4 py-2.5 tabular-nums">{row.impressions}</td>
-                          <td className="px-4 py-2.5 text-right font-medium tabular-nums text-white">{row.earnings}</td>
+                      {earningsLoading && (
+                        <tr>
+                          <td colSpan={3} className="px-4 py-6 text-center text-sm text-zinc-500">
+                            Loading…
+                          </td>
                         </tr>
-                      ))}
+                      )}
+                      {earnings &&
+                        !earningsLoading &&
+                        [...earnings.series]
+                          .filter((s) => s.currency === primaryCurrency)
+                          .slice(-7)
+                          .reverse()
+                          .map((row) => (
+                            <tr key={`${row.date}-${row.currency}`} className="text-zinc-300">
+                              <td className="px-4 py-2.5 font-mono text-xs text-zinc-400">{row.date}</td>
+                              <td className="px-4 py-2.5 text-right font-medium tabular-nums text-white">
+                                {formatMoney(row.commission, primaryCurrency)}
+                              </td>
+                              <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">{row.transactions}</td>
+                            </tr>
+                          ))}
+                      {earnings &&
+                        !earningsLoading &&
+                        earnings.series.filter((s) => s.currency === primaryCurrency).length === 0 && (
+                          <tr>
+                            <td colSpan={3} className="px-4 py-6 text-center text-sm text-zinc-500">
+                              No commission rows in {primaryCurrency} yet. Run an admin sync, or check other currencies in Awin.
+                            </td>
+                          </tr>
+                        )}
                     </tbody>
                   </table>
                 </div>
@@ -378,8 +481,8 @@ export default function DashboardContent() {
                 <div>
                   <h2 className="text-lg font-semibold text-white">Your tracking links</h2>
                   <p className="mt-1 text-xs text-zinc-500">
-                    Clicks are counted when someone opens your LinkHexa short URL (<span className="text-zinc-400">/go/short/…</span>
-                    ). Network (Awin) reporting stays separate from this.
+                    Clicks are counted on your LinkHexa short URL (<span className="text-zinc-400">/go/short/…</span>). Sales
+                    attribution uses the same slug as Awin click ref on new links.
                   </p>
                 </div>
                 <div className="shrink-0 rounded-xl border border-white/10 bg-zinc-950/50 px-3 py-2 text-right">
@@ -439,6 +542,8 @@ export default function DashboardContent() {
               )}
             </div>
 
+            <PublisherAwinTransactionsSection />
+
             <div className="grid gap-6 lg:grid-cols-[minmax(0,260px)_1fr]">
               <div className="flex flex-col gap-4">
                 <div className={cardBase}>
@@ -451,25 +556,21 @@ export default function DashboardContent() {
                   <ul className="mt-3 space-y-2 text-sm">
                     <li>
                       <Link href="/dashboard/brands" className="text-indigo-400 hover:text-indigo-300 hover:underline">
-                        Set up ads — brands catalogue
+                        Browse brands
                       </Link>
                     </li>
                     <li>
-                      <span className="cursor-default text-zinc-600" title="Coming soon">
-                        Invite &amp; earn
-                      </span>
-                    </li>
-                    <li>
-                      <span className="cursor-default text-zinc-600" title="Coming soon">
-                        Recent announcements
-                      </span>
+                      <Link href="/dashboard/brands?filter=approved" className="text-indigo-400 hover:text-indigo-300 hover:underline">
+                        My approved brands
+                      </Link>
                     </li>
                   </ul>
                 </div>
                 <div className={cardBase}>
                   <h3 className="text-sm font-semibold text-white">Publisher support</h3>
                   <p className="mt-2 text-xs leading-relaxed text-zinc-500">
-                    Questions about approvals or tracking? Use{" "}
+                    Use the <strong className="text-zinc-400">chat button</strong> (bottom-right) for in-dashboard messages.
+                    Or reach us via{" "}
                     <Link href="/contact" className="text-indigo-400 hover:underline">
                       contact
                     </Link>{" "}
@@ -479,162 +580,48 @@ export default function DashboardContent() {
               </div>
 
               <div className={cardBase}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex flex-wrap gap-1 border-b border-white/5 pb-1 sm:border-0 sm:pb-0">
-                    {(["Sites", "Ad units", "Reports"] as const).map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setTableTab(t)}
-                        className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-                          tableTab === t ? "bg-white/10 text-white" : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                  <label className="sr-only" htmlFor="dash-search">
-                    Search table
-                  </label>
-                  <input
-                    id="dash-search"
-                    type="search"
-                    value={tableQuery}
-                    onChange={(e) => setTableQuery(e.target.value)}
-                    placeholder="Search…"
-                    className="w-full rounded-xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 sm:max-w-xs"
-                  />
-                </div>
-                <div className="mt-4 overflow-x-auto rounded-xl border border-white/5">
-                  <table className="w-full min-w-[520px] text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/5 bg-zinc-950/50 text-xs font-medium uppercase tracking-wider text-zinc-500">
-                        <th className="px-3 py-2.5">Website</th>
-                        <th className="px-3 py-2.5">Status</th>
-                        <th className="px-3 py-2.5">Impressions</th>
-                        <th className="px-3 py-2.5">CTR</th>
-                        <th className="px-3 py-2.5">eCPM</th>
-                        <th className="px-3 py-2.5 text-right">Earnings</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {filteredTableRows.length === 0 ? (
-                        <tr>
-                          <td colSpan={6} className="px-3 py-8 text-center text-sm text-zinc-500">
-                            No rows match your search.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredTableRows.map((row) => (
-                          <tr key={row.site} className="text-zinc-300">
-                            <td className="px-3 py-2.5">
-                              <span className="flex items-center gap-2">
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-xs font-semibold text-zinc-500">
-                                  {row.site[0]?.toUpperCase() ?? "?"}
-                                </span>
-                                <span className="font-mono text-xs text-zinc-400">{row.site}</span>
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <span className="inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">
-                                Approved
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5 tabular-nums text-zinc-400">{row.impressions}</td>
-                            <td className="px-3 py-2.5 tabular-nums text-zinc-400">{row.ctr}</td>
-                            <td className="px-3 py-2.5 tabular-nums text-zinc-400">{row.ecpm}</td>
-                            <td className="px-3 py-2.5 text-right font-medium tabular-nums text-white">{row.earnings}</td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="mt-3 text-xs text-zinc-600">
-                  Tab: {tableTab} — placeholder data for layout; wire to your reporting API when ready.
+                <h3 className="text-lg font-semibold text-white">Earnings by currency</h3>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Attributed commission and sale value from Awin over the last {earnings?.days ?? 90} days (same source as the
+                  chart above). Per-link detail is in <strong className="text-zinc-400">Your Awin sales</strong>.
                 </p>
+                {earningsLoading ? (
+                  <p className="mt-6 text-sm text-zinc-500">Loading…</p>
+                ) : earningsError ? (
+                  <p className="mt-6 text-sm text-amber-200/90">{earningsError}</p>
+                ) : currencyBreakdown.length === 0 ? (
+                  <p className="mt-6 rounded-xl border border-white/5 bg-zinc-950/40 px-4 py-6 text-sm text-zinc-500">
+                    No attributed earnings in this window yet. Create tracking links (slug = Awin click ref), drive traffic, then
+                    ask your admin to sync Awin transactions. Impressions or channel breakdowns are not stored in LinkHexa yet.
+                  </p>
+                ) : (
+                  <div className="mt-4 overflow-x-auto rounded-xl border border-white/5">
+                    <table className="w-full min-w-[360px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-white/5 bg-zinc-950/50 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                          <th className="px-3 py-2.5">Currency</th>
+                          <th className="px-3 py-2.5 text-right">Commission</th>
+                          <th className="px-3 py-2.5 text-right">Sale value</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {currencyBreakdown.map((row) => (
+                          <tr key={row.currency} className="text-zinc-300">
+                            <td className="px-3 py-2.5 font-mono text-xs text-zinc-400">{row.currency}</td>
+                            <td className="px-3 py-2.5 text-right font-medium tabular-nums text-white">
+                              {formatMoney(row.commission, row.currency)}
+                            </td>
+                            <td className="px-3 py-2.5 text-right tabular-nums text-teal-400/90">
+                              {formatMoney(row.sale, row.currency)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className={cardBase}>
-                <h3 className="text-sm font-semibold text-white">Top channels</h3>
-                <div className="mt-4 space-y-3">
-                  {MOCK_CHANNELS.map((ch) => (
-                    <div key={ch.name} className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-zinc-400">{ch.name}</span>
-                      <div className="flex items-center gap-3 tabular-nums">
-                        <span className="text-xs text-zinc-600">{ch.share}</span>
-                        <span className="font-medium text-white">{ch.earnings}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className={cardBase}>
-                <h3 className="text-sm font-semibold text-white">Top countries</h3>
-                <div className="mt-4 space-y-3">
-                  {MOCK_COUNTRIES.map((c) => (
-                    <div key={c.country} className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-zinc-400">{c.country}</span>
-                      <div className="flex items-center gap-3 tabular-nums">
-                        <span className="text-xs text-zinc-600">{c.impressions}</span>
-                        <span className="font-medium text-white">{c.earnings}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Sites list */}
-            <section className={cardBase}>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-semibold text-white">Your sites / platforms</h2>
-                <input
-                  type="search"
-                  value={siteQuery}
-                  onChange={(e) => setSiteQuery(e.target.value)}
-                  placeholder="Filter sites…"
-                  className="w-full rounded-xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 sm:max-w-xs"
-                  aria-label="Filter sites"
-                />
-              </div>
-              <ul className="mt-5 max-h-[min(480px,50vh)] divide-y divide-white/5 overflow-y-auto rounded-xl border border-white/5">
-                {filteredSites.map((s) => (
-                  <li key={s.url} className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 text-sm font-bold text-indigo-300">
-                        {s.name[0]}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-white">{s.name}</p>
-                        <p className="truncate font-mono text-xs text-zinc-500">{s.url}</p>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          s.status === "Approved"
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-amber-500/15 text-amber-400"
-                        }`}
-                      >
-                        {s.status}
-                      </span>
-                      <button
-                        type="button"
-                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-500"
-                      >
-                        View report
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {filteredSites.length === 0 && <p className="mt-4 text-center text-sm text-zinc-500">No sites match your search.</p>}
-            </section>
           </div>
         </div>
 

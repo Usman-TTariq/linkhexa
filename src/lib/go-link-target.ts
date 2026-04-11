@@ -16,12 +16,30 @@ export function baseTargetUrl(display: string | null, clickThrough: string | nul
 }
 
 /**
- * Tracked URL that lands on the merchant site (Link Builder), not the legacy `clickThroughUrl`
- * from the programmes list — that URL often hits awclick.php then redirects to a wrong third-party
- * landing configured on Awin’s side.
+ * Append clickref for legacy awclick URLs when Link Builder is unavailable.
+ * Skips if a clickref-like param is already present.
  */
-async function trackingUrlToMerchantDisplay(programmeId: number, destinationNorm: string): Promise<string | null> {
-  const key = `${programmeId}|${destinationNorm}`;
+export function appendAwinClickRefToUrl(url: string, clickRef: string): string {
+  try {
+    const u = new URL(url.trim());
+    const lowerKeys = [...u.searchParams.keys()].map((k) => k.toLowerCase());
+    if (lowerKeys.some((k) => k === "clickref")) return u.href;
+    u.searchParams.set("clickref", clickRef);
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * Tracked URL via Link Builder. Cache key includes clickRef so each short link keeps attribution.
+ */
+async function trackingUrlToMerchantDisplay(
+  programmeId: number,
+  destinationNorm: string,
+  clickRef?: string
+): Promise<string | null> {
+  const key = `${programmeId}|${destinationNorm}|${clickRef ?? ""}`;
   const now = Date.now();
   const hit = linkBuilderCache.get(key);
   if (hit && hit.expires > now) return hit.url;
@@ -29,6 +47,7 @@ async function trackingUrlToMerchantDisplay(programmeId: number, destinationNorm
     const built = await generateAwinTrackingLink({
       advertiserId: programmeId,
       destinationUrl: destinationNorm,
+      parameters: clickRef ? { clickRef } : undefined,
     });
     linkBuilderCache.set(key, { url: built.url, expires: now + LINK_BUILDER_CACHE_TTL_MS });
     return built.url;
@@ -38,20 +57,23 @@ async function trackingUrlToMerchantDisplay(programmeId: number, destinationNorm
 }
 
 /**
- * Best destination for a standard (non–deep-link) go link: Link Builder → merchant display URL
- * when possible; else legacy click-through / display.
+ * Best destination for a go link. When `clickRef` is set (use go-link slug), it is sent to
+ * Awin Link Builder so transactions can be attributed to `publisher_go_links.slug`.
  */
 export async function resolveTrackedDestination(
   programmeId: number,
   displayUrl: string | null,
-  clickThroughUrl: string | null
+  clickThroughUrl: string | null,
+  clickRef?: string
 ): Promise<string | null> {
   const norm = normalizeDisplayUrl(displayUrl);
   if (isAwinConfigured() && norm) {
-    const built = await trackingUrlToMerchantDisplay(programmeId, norm);
+    const built = await trackingUrlToMerchantDisplay(programmeId, norm, clickRef);
     if (built) return built;
   }
-  return baseTargetUrl(displayUrl, clickThroughUrl);
+  const base = baseTargetUrl(displayUrl, clickThroughUrl);
+  if (base && clickRef) return appendAwinClickRefToUrl(base, clickRef);
+  return base;
 }
 
 function normalizeHref(a: string): string {

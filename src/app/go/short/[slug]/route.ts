@@ -35,7 +35,7 @@ export async function GET(_request: Request, { params }: Params) {
   const clickThrough = ap?.click_through_url ?? null;
 
   if (!deepLink && Number.isFinite(programmeId)) {
-    const canonical = await resolveTrackedDestination(programmeId, displayUrl, clickThrough);
+    const canonical = await resolveTrackedDestination(programmeId, displayUrl, clickThrough, slug);
     if (canonical && destinationsDiffer(canonical, redirectUrl)) {
       await supabase.from("publisher_go_links").update({ target_url: canonical }).eq("slug", slug);
       redirectUrl = canonical;
