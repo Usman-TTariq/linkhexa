@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { expandClickRefVariants, matchKnownSlug, resolvePublisherIdFromClickRef } from "./slug-match";
 import { fetchAwinTransactionsRange, parseAwinTransactionRow } from "./transactions";
 
 const OVERLAP_MS = 2 * 24 * 60 * 60 * 1000;
@@ -76,12 +77,19 @@ export async function syncAwinTransactionsToDatabase(
   const parsed = fetched.map(parseAwinTransactionRow).filter((x): x is NonNullable<typeof x> => x != null);
 
   const clickRefs = [...new Set(parsed.map((p) => p.clickRef).filter((c): c is string => Boolean(c)))];
+  const slugCandidates = new Set<string>();
+  for (const ref of clickRefs) {
+    for (const c of expandClickRefVariants(ref)) {
+      if (/^[A-Za-z0-9]{6,32}$/.test(c)) slugCandidates.add(c);
+    }
+  }
   const slugToPublisher = new Map<string, string>();
 
-  if (clickRefs.length > 0) {
+  const slugList = [...slugCandidates];
+  if (slugList.length > 0) {
     const chunk = 200;
-    for (let i = 0; i < clickRefs.length; i += chunk) {
-      const part = clickRefs.slice(i, i + chunk);
+    for (let i = 0; i < slugList.length; i += chunk) {
+      const part = slugList.slice(i, i + chunk);
       const { data: rows } = await supabase
         .from("publisher_go_links")
         .select("slug, publisher_id")
@@ -94,10 +102,13 @@ export async function syncAwinTransactionsToDatabase(
     }
   }
 
+  const knownSlugs = new Set(slugToPublisher.keys());
+
   let attributed = 0;
   let unmatched = 0;
   const rows = parsed.map((p) => {
-    const publisherId = p.clickRef ? slugToPublisher.get(p.clickRef) ?? null : null;
+    const publisherId = resolvePublisherIdFromClickRef(p.clickRef, slugToPublisher);
+    const matchedSlug = matchKnownSlug(null, p.clickRef, knownSlugs);
     return {
       awin_transaction_id: p.awinTransactionId,
       advertiser_id: p.advertiserId,
@@ -109,12 +120,12 @@ export async function syncAwinTransactionsToDatabase(
       transaction_date: p.transactionDate,
       click_ref: p.clickRef,
       publisher_id: publisherId,
-      go_link_slug: p.clickRef && publisherId ? p.clickRef : null,
+      go_link_slug: matchedSlug,
       synced_at: new Date().toISOString(),
     };
   });
   for (const p of parsed) {
-    const publisherId = p.clickRef ? slugToPublisher.get(p.clickRef) ?? null : null;
+    const publisherId = resolvePublisherIdFromClickRef(p.clickRef, slugToPublisher);
     if (publisherId) attributed += 1;
     else if (p.clickRef) unmatched += 1;
   }

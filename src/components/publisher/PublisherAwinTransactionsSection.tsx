@@ -6,6 +6,7 @@ import Link from "next/link";
 type ParsedRow = {
   awinTransactionId: string;
   advertiserId: number | null;
+  advertiserName?: string | null;
   commissionStatus: string | null;
   commissionAmount: number;
   commissionCurrency: string;
@@ -18,6 +19,7 @@ type ParsedRow = {
 type DbRow = {
   awin_transaction_id: string;
   advertiser_id: number | null;
+  advertiser_name?: string | null;
   commission_status: string | null;
   commission_amount: number;
   commission_currency: string;
@@ -138,7 +140,7 @@ export default function PublisherAwinTransactionsSection() {
     <section className="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 shadow-lg shadow-black/20 backdrop-blur-sm">
       <h2 className="text-lg font-semibold text-white">Your Awin sales (transactions)</h2>
       <p className="mt-1 text-xs text-zinc-500">
-        <strong className="text-zinc-400">Stored</strong> shows conversions attributed to you (after an admin sync).{" "}
+        <strong className="text-zinc-400">Stored</strong> shows your synced Awin rows (matched to your account or your go-link slug / click ref).{" "}
         <strong className="text-zinc-400">Live</strong> pulls the same Awin list as the network, but only rows whose{" "}
         <span className="text-zinc-400">click ref</span> matches one of your short-link slugs (max 31 days per request).
       </p>
@@ -214,7 +216,7 @@ export default function PublisherAwinTransactionsSection() {
                   <th className="px-3 py-2.5">Sale</th>
                   <th className="px-3 py-2.5">Commission</th>
                   <th className="px-3 py-2.5">Status</th>
-                  <th className="px-3 py-2.5">Advertiser</th>
+                  <th className="px-3 py-2.5">Brand</th>
                   <th className="px-3 py-2.5">Click ref</th>
                   <th className="px-3 py-2.5">Txn id</th>
                 </tr>
@@ -223,7 +225,7 @@ export default function PublisherAwinTransactionsSection() {
                 {storedRows.length === 0 && !storedLoading ? (
                   <tr>
                     <td colSpan={7} className="px-3 py-8 text-center text-sm text-zinc-500">
-                      No attributed sales yet. Use tracking links (slug = Awin click ref) and ask your admin to sync transactions.
+                      No synced sales in this date range yet. Use tracking links (slug in Awin click ref), then ask your admin to sync transactions.
                     </td>
                   </tr>
                 ) : (
@@ -237,7 +239,14 @@ export default function PublisherAwinTransactionsSection() {
                         {formatMoney(Number(r.commission_amount), r.commission_currency)}
                       </td>
                       <td className="px-3 py-2 text-xs">{r.commission_status ?? "—"}</td>
-                      <td className="px-3 py-2 tabular-nums">{r.advertiser_id ?? "—"}</td>
+                      <td className="px-3 py-2">
+                        <div className="min-w-[180px]">
+                          <div className="truncate text-sm text-zinc-200" title={r.advertiser_name ?? ""}>
+                            {r.advertiser_name ?? "—"}
+                          </div>
+                          <div className="text-xs tabular-nums text-zinc-500">{r.advertiser_id ?? "—"}</div>
+                        </div>
+                      </td>
                       <td className="max-w-[120px] truncate px-3 py-2 font-mono text-xs" title={r.click_ref ?? ""}>
                         {r.click_ref ?? "—"}
                       </td>
@@ -320,7 +329,7 @@ export default function PublisherAwinTransactionsSection() {
                   <th className="px-3 py-2.5">Sale</th>
                   <th className="px-3 py-2.5">Commission</th>
                   <th className="px-3 py-2.5">Status</th>
-                  <th className="px-3 py-2.5">Advertiser</th>
+                  <th className="px-3 py-2.5">Brand</th>
                   <th className="px-3 py-2.5">Click ref</th>
                   <th className="px-3 py-2.5">Txn id</th>
                 </tr>
@@ -343,7 +352,14 @@ export default function PublisherAwinTransactionsSection() {
                         {formatMoney(r.commissionAmount, r.commissionCurrency)}
                       </td>
                       <td className="px-3 py-2 text-xs">{r.commissionStatus ?? "—"}</td>
-                      <td className="px-3 py-2 tabular-nums">{r.advertiserId ?? "—"}</td>
+                      <td className="px-3 py-2">
+                        <div className="min-w-[180px]">
+                          <div className="truncate text-sm text-zinc-200" title={r.advertiserName ?? ""}>
+                            {r.advertiserName ?? "—"}
+                          </div>
+                          <div className="text-xs tabular-nums text-zinc-500">{r.advertiserId ?? "—"}</div>
+                        </div>
+                      </td>
                       <td className="max-w-[120px] truncate px-3 py-2 font-mono text-xs" title={r.clickRef ?? ""}>
                         {r.clickRef ?? "—"}
                       </td>

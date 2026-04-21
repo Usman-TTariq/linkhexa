@@ -35,15 +35,17 @@ function HelpIcon({ className }: { className?: string }) {
 export default function PublisherDashboardNavbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [brandsOpen, setBrandsOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<null | "brands" | "reports">(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [avatarInitial, setAvatarInitial] = useState("?");
   const [impersonating, setImpersonating] = useState(false);
   const [backLoading, setBackLoading] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuClusterRef = useRef<HTMLDivElement>(null);
 
   const dashboardActive = pathname === "/dashboard";
+  const detailedActive = pathname === "/dashboard/detailed";
   const brandsActive = pathname?.startsWith("/dashboard/brands") ?? false;
+  const reportsActive = pathname?.startsWith("/dashboard/reports") ?? false;
 
   useEffect(() => {
     void (async () => {
@@ -62,11 +64,15 @@ export default function PublisherDashboardNavbar() {
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setBrandsOpen(false);
+      if (menuClusterRef.current && !menuClusterRef.current.contains(e.target as Node)) setOpenMenu(null);
     };
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  useEffect(() => {
+    setOpenMenu(null);
+  }, [pathname]);
 
   const navLinkClass = (active: boolean) =>
     `relative text-sm font-medium transition-colors ${
@@ -120,41 +126,77 @@ export default function PublisherDashboardNavbar() {
               )}
             </Link>
 
-            <div className="relative px-1" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setBrandsOpen((o) => !o)}
-                className={`relative inline-flex items-center gap-1 rounded-lg px-2 py-1 ${navLinkClass(brandsActive)} hover:bg-white/5`}
-                aria-expanded={brandsOpen}
-                aria-haspopup="true"
-              >
-                Brands
-                <ChevronDown className="opacity-70" />
-                {brandsActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
-                )}
-              </button>
-              {brandsOpen && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-xl border border-white/10 bg-zinc-900 py-1 shadow-xl shadow-black/40">
-                  <Link
-                    href="/dashboard/brands"
-                    className="block px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/5"
-                    onClick={() => setBrandsOpen(false)}
-                  >
-                    All brands
-                  </Link>
-                  <Link
-                    href="/dashboard/brands?filter=approved"
-                    className="block px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/5"
-                    onClick={() => setBrandsOpen(false)}
-                  >
-                    My brands
-                  </Link>
-                </div>
+            <Link href="/dashboard/detailed" className={`relative px-2 py-1 ${navLinkClass(detailedActive)}`}>
+              Detailed
+              {detailedActive && (
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
               )}
+            </Link>
+
+            <div ref={menuClusterRef} className="flex items-center gap-1 lg:gap-2">
+              <div className="relative px-1">
+                <button
+                  type="button"
+                  onClick={() => setOpenMenu((o) => (o === "brands" ? null : "brands"))}
+                  className={`relative inline-flex items-center gap-1 rounded-lg px-2 py-1 ${navLinkClass(brandsActive)} hover:bg-white/5`}
+                  aria-expanded={openMenu === "brands"}
+                  aria-haspopup="true"
+                >
+                  Brands
+                  <ChevronDown className={`opacity-70 transition-transform ${openMenu === "brands" ? "rotate-180" : ""}`} />
+                  {brandsActive && (
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+                  )}
+                </button>
+                {openMenu === "brands" && (
+                  <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-xl border border-white/10 bg-zinc-900 py-1 shadow-xl shadow-black/40">
+                    <Link
+                      href="/dashboard/brands"
+                      className="block px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/5"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      All brands
+                    </Link>
+                    <Link
+                      href="/dashboard/brands?filter=approved"
+                      className="block px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/5"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      My brands
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative px-1">
+                <button
+                  type="button"
+                  onClick={() => setOpenMenu((o) => (o === "reports" ? null : "reports"))}
+                  className={`relative inline-flex items-center gap-1 rounded-lg px-2 py-1 ${navLinkClass(reportsActive)} hover:bg-white/5`}
+                  aria-expanded={openMenu === "reports"}
+                  aria-haspopup="true"
+                >
+                  Reports
+                  <ChevronDown className={`opacity-80 transition-transform ${openMenu === "reports" ? "rotate-180" : ""}`} />
+                  {reportsActive && (
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" />
+                  )}
+                </button>
+                {openMenu === "reports" && (
+                  <div className="absolute left-0 top-full z-50 mt-2 min-w-[260px] rounded-xl border border-zinc-200/90 bg-white py-1.5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.35)] ring-1 ring-black/[0.04]">
+                    <Link
+                      href="/dashboard/reports/advertiser-performance"
+                      className="block px-4 py-3 text-sm font-medium text-slate-800 transition-colors hover:bg-slate-50"
+                      onClick={() => setOpenMenu(null)}
+                    >
+                      Advertiser performance
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {(["Reports", "Creatives", "Tools"] as const).map((label) => (
+            {(["Creatives", "Tools"] as const).map((label) => (
               <span
                 key={label}
                 className="inline-flex cursor-default items-center gap-0.5 px-2 py-1 text-sm font-medium text-zinc-600 select-none"
@@ -239,6 +281,13 @@ export default function PublisherDashboardNavbar() {
               Dashboard
             </Link>
             <Link
+              href="/dashboard/detailed"
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-200 hover:bg-white/5"
+              onClick={() => setMobileOpen(false)}
+            >
+              Detailed dashboard
+            </Link>
+            <Link
               href="/dashboard/brands"
               className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-200 hover:bg-white/5"
               onClick={() => setMobileOpen(false)}
@@ -252,7 +301,14 @@ export default function PublisherDashboardNavbar() {
             >
               My brands
             </Link>
-            <p className="px-3 pt-2 text-xs text-zinc-600">Reports, Creatives, Tools, Payments — coming soon</p>
+            <Link
+              href="/dashboard/reports/advertiser-performance"
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-200 hover:bg-white/5"
+              onClick={() => setMobileOpen(false)}
+            >
+              Reports · Advertiser performance
+            </Link>
+            <p className="px-3 pt-2 text-xs text-zinc-600">Creatives, Tools, Payments — coming soon</p>
             <button
               type="button"
               onClick={() => void logout()}

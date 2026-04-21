@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type ParsedRow = {
   awinTransactionId: string;
   advertiserId: number | null;
+  advertiserName?: string | null;
   commissionStatus: string | null;
   commissionAmount: number;
   commissionCurrency: string;
@@ -18,6 +20,7 @@ type ParsedRow = {
 type DbRow = {
   awin_transaction_id: string;
   advertiser_id: number | null;
+  advertiser_name?: string | null;
   commission_status: string | null;
   commission_amount: number;
   commission_currency: string;
@@ -46,18 +49,37 @@ function formatWhen(iso: string) {
   }
 }
 
+function formatCurrencyMap(map: Record<string, number>): string {
+  const entries = Object.entries(map).filter(([, v]) => Number.isFinite(v));
+  if (entries.length === 0) return "—";
+  entries.sort((a, b) => b[1] - a[1]);
+  return entries.map(([c, amt]) => formatMoney(amt, c)).join(" · ");
+}
+
+type StoredFilterTotals = {
+  commissionByCurrency: Record<string, number>;
+  saleByCurrency: Record<string, number>;
+  rowCount: number;
+  capped?: boolean;
+};
+
+const GO_LINK_SLUG_RE = /^[A-Za-z0-9]{6,32}$/;
+
 export default function AwinTransactionsContent() {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<"stored" | "live">("stored");
 
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [attributedOnly, setAttributedOnly] = useState(false);
+  const [goLinkSlug, setGoLinkSlug] = useState("");
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [storedRows, setStoredRows] = useState<DbRow[]>([]);
   const [storedTotal, setStoredTotal] = useState(0);
   const [storedLoading, setStoredLoading] = useState(false);
   const [storedError, setStoredError] = useState<string | null>(null);
+  const [storedFilterTotals, setStoredFilterTotals] = useState<StoredFilterTotals | null>(null);
 
   const [liveStart, setLiveStart] = useState("");
   const [liveEnd, setLiveEnd] = useState("");
@@ -65,6 +87,17 @@ export default function AwinTransactionsContent() {
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
   const [liveMeta, setLiveMeta] = useState<{ rangeStart: string; rangeEnd: string; count: number } | null>(null);
+
+  const goLinkSlugFromUrl = searchParams.get("goLinkSlug")?.trim() ?? "";
+  /** Must match deep links: "All" uses slug only; "Linked" uses &attributedOnly=1 */
+  const attributedOnlyFromUrl = searchParams.get("attributedOnly");
+  useEffect(() => {
+    if (!GO_LINK_SLUG_RE.test(goLinkSlugFromUrl)) return;
+    setGoLinkSlug(goLinkSlugFromUrl);
+    setAttributedOnly(attributedOnlyFromUrl === "1");
+    setOffset(0);
+    setTab("stored");
+  }, [goLinkSlugFromUrl, attributedOnlyFromUrl]);
 
   const loadStored = useCallback(async () => {
     setStoredLoading(true);
@@ -77,20 +110,41 @@ export default function AwinTransactionsContent() {
       if (from.trim()) params.set("from", from.trim());
       if (to.trim()) params.set("to", to.trim());
       if (attributedOnly) params.set("attributedOnly", "1");
+      if (GO_LINK_SLUG_RE.test(goLinkSlug.trim())) params.set("goLinkSlug", goLinkSlug.trim());
       const res = await fetch(`/api/admin/awin/transactions?${params}`, { credentials: "include" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setStoredError(typeof data.error === "string" ? data.error : "Load failed");
+        setStoredFilterTotals(null);
         return;
       }
       setStoredRows(Array.isArray(data.rows) ? data.rows : []);
       setStoredTotal(typeof data.total === "number" ? data.total : 0);
+      const ft = data.filterTotals;
+      if (
+        ft &&
+        typeof ft.rowCount === "number" &&
+        ft.commissionByCurrency &&
+        typeof ft.commissionByCurrency === "object" &&
+        ft.saleByCurrency &&
+        typeof ft.saleByCurrency === "object"
+      ) {
+        setStoredFilterTotals({
+          rowCount: ft.rowCount,
+          capped: Boolean(ft.capped),
+          commissionByCurrency: ft.commissionByCurrency as Record<string, number>,
+          saleByCurrency: ft.saleByCurrency as Record<string, number>,
+        });
+      } else {
+        setStoredFilterTotals(null);
+      }
     } catch {
       setStoredError("Request failed");
+      setStoredFilterTotals(null);
     } finally {
       setStoredLoading(false);
     }
-  }, [limit, offset, from, to, attributedOnly]);
+  }, [limit, offset, from, to, attributedOnly, goLinkSlug]);
 
   useEffect(() => {
     if (tab !== "stored") return;
@@ -223,6 +277,25 @@ export default function AwinTransactionsContent() {
               />
               Attributed only
             </label>
+            <div>
+              <label
+                htmlFor="txn-go-slug"
+                className="block text-xs font-medium uppercase tracking-wider text-zinc-500"
+              >
+                Go link slug
+              </label>
+              <input
+                id="txn-go-slug"
+                type="text"
+                value={goLinkSlug}
+                onChange={(e) => {
+                  setGoLinkSlug(e.target.value);
+                  setOffset(0);
+                }}
+                placeholder="e.g. Ab3xY9mK2q"
+                className="mt-1 w-44 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 font-mono text-sm text-white"
+              />
+            </div>
             <button
               type="button"
               onClick={() => void loadStored()}
@@ -247,11 +320,33 @@ export default function AwinTransactionsContent() {
                   <th className="px-3 py-3">Sale</th>
                   <th className="px-3 py-3">Commission</th>
                   <th className="px-3 py-3">Status</th>
-                  <th className="px-3 py-3">Advertiser</th>
+                  <th className="px-3 py-3">Brand</th>
                   <th className="px-3 py-3">Click ref</th>
                   <th className="px-3 py-3">Publisher</th>
                   <th className="px-3 py-3">Txn id</th>
                 </tr>
+                {storedFilterTotals && GO_LINK_SLUG_RE.test(goLinkSlug.trim()) && (
+                  <tr className="border-b border-white/10 bg-zinc-950/70 text-xs font-normal normal-case">
+                    <th
+                      scope="row"
+                      className="whitespace-nowrap px-3 py-2 text-left font-medium text-zinc-500"
+                    >
+                      Totals ({storedFilterTotals.rowCount.toLocaleString()} txn
+                      {storedFilterTotals.capped ? "+" : ""})
+                    </th>
+                    <th className="whitespace-nowrap px-3 py-2 text-left tabular-nums font-semibold text-white">
+                      {formatCurrencyMap(storedFilterTotals.saleByCurrency)}
+                    </th>
+                    <th className="whitespace-nowrap px-3 py-2 text-left tabular-nums font-semibold text-teal-300">
+                      {formatCurrencyMap(storedFilterTotals.commissionByCurrency)}
+                    </th>
+                    <th colSpan={5} className="px-3 py-2 text-left font-normal text-zinc-500">
+                      {storedFilterTotals.capped
+                        ? "Sum capped at first 50k matching rows — increase date range or export for full reconciliation."
+                        : "All matching rows in current filters."}
+                    </th>
+                  </tr>
+                )}
               </thead>
               <tbody>
                 {storedRows.length === 0 && !storedLoading ? (
@@ -271,7 +366,14 @@ export default function AwinTransactionsContent() {
                         {formatMoney(Number(r.commission_amount), r.commission_currency)}
                       </td>
                       <td className="px-3 py-2.5 text-xs">{r.commission_status ?? "—"}</td>
-                      <td className="px-3 py-2.5 tabular-nums">{r.advertiser_id ?? "—"}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="min-w-[180px]">
+                          <div className="truncate text-sm text-zinc-200" title={r.advertiser_name ?? ""}>
+                            {r.advertiser_name ?? "—"}
+                          </div>
+                          <div className="text-xs tabular-nums text-zinc-500">{r.advertiser_id ?? "—"}</div>
+                        </div>
+                      </td>
                       <td className="max-w-[140px] truncate px-3 py-2.5 font-mono text-xs" title={r.click_ref ?? ""}>
                         {r.click_ref ?? "—"}
                       </td>
@@ -370,7 +472,7 @@ export default function AwinTransactionsContent() {
                   <th className="px-3 py-3">Sale</th>
                   <th className="px-3 py-3">Commission</th>
                   <th className="px-3 py-3">Status</th>
-                  <th className="px-3 py-3">Advertiser</th>
+                  <th className="px-3 py-3">Brand</th>
                   <th className="px-3 py-3">Click ref</th>
                   <th className="px-3 py-3">Txn id</th>
                 </tr>
@@ -393,7 +495,14 @@ export default function AwinTransactionsContent() {
                         {formatMoney(r.commissionAmount, r.commissionCurrency)}
                       </td>
                       <td className="px-3 py-2.5 text-xs">{r.commissionStatus ?? "—"}</td>
-                      <td className="px-3 py-2.5 tabular-nums">{r.advertiserId ?? "—"}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="min-w-[180px]">
+                          <div className="truncate text-sm text-zinc-200" title={r.advertiserName ?? ""}>
+                            {r.advertiserName ?? "—"}
+                          </div>
+                          <div className="text-xs tabular-nums text-zinc-500">{r.advertiserId ?? "—"}</div>
+                        </div>
+                      </td>
                       <td className="max-w-[140px] truncate px-3 py-2.5 font-mono text-xs" title={r.clickRef ?? ""}>
                         {r.clickRef ?? "—"}
                       </td>

@@ -53,6 +53,7 @@ type PublisherEarningRow = {
   username: string;
   email: string;
   commissionByCurrency: Record<string, number>;
+  saleByCurrency: Record<string, number>;
 };
 
 function formatMoney(n: number, currency: string) {
@@ -303,13 +304,18 @@ export default function AdminDashboardOverview() {
 
           {publishersEarnings.length > 0 && (
             <section className="mt-10">
-              <h2 className="text-lg font-semibold text-white">Publishers — commissions (last 30 days)</h2>
-              <p className="mt-1 text-sm text-zinc-500">From daily rollup; attribution uses click ref = short-link slug.</p>
+              <h2 className="text-lg font-semibold text-white">Publishers — sales &amp; commission (last 30 days)</h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                From <code className="text-zinc-600">publisher_earnings_daily</code> (rollup after sync). Rows with a
+                publisher id / attributed slug feed this — not the same as the whole-network &quot;Activity by platform&quot;
+                totals above.
+              </p>
               <div className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-zinc-900/70 shadow-lg shadow-black/20 backdrop-blur-sm">
-                <table className="w-full min-w-[480px] text-left text-sm">
+                <table className="w-full min-w-[640px] text-left text-sm">
                   <thead>
                     <tr className="border-b border-white/10 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                       <th className="px-4 py-3">Publisher</th>
+                      <th className="px-4 py-3 text-right">Sale (gross) by currency</th>
                       <th className="px-4 py-3 text-right">Commission by currency</th>
                     </tr>
                   </thead>
@@ -319,6 +325,12 @@ export default function AdminDashboardOverview() {
                         <td className="px-4 py-3">
                           <span className="font-medium text-white">{p.username}</span>
                           <span className="mt-0.5 block text-xs text-zinc-500">{p.email}</span>
+                        </td>
+                        <td className="px-4 py-3 text-right text-xs tabular-nums text-teal-400/90">
+                          {Object.entries(p.saleByCurrency ?? {})
+                            .filter(([, v]) => v > 0)
+                            .map(([c, v]) => `${c} ${v.toFixed(2)}`)
+                            .join(" · ") || "—"}
                         </td>
                         <td className="px-4 py-3 text-right text-xs tabular-nums">
                           {Object.entries(p.commissionByCurrency)
@@ -341,11 +353,13 @@ export default function AdminDashboardOverview() {
             </p>
             <p className="mt-2 text-xs leading-relaxed text-zinc-600">
               <span className="font-medium text-zinc-500">Awin conversions / gross / payout</span> below use{" "}
-              <strong className="text-zinc-400">rolling last 30 days (UTC)</strong> from transactions pulled from the Awin API and
-              stored in <code className="text-zinc-500">awin_transactions</code>. Opening this dashboard triggers a throttled
-              auto-sync (by default about every 15 minutes, override with{" "}
-              <code className="text-zinc-500">ADMIN_DASHBOARD_AWIN_SYNC_MINUTES</code>) so totals stay current; use &quot;Sync Awin
-              transactions now&quot; above for an immediate pull.
+              <strong className="text-zinc-400">rolling last 30 days (UTC)</strong> from{" "}
+              <strong className="text-zinc-400">every</strong> row in <code className="text-zinc-500">awin_transactions</code> in
+              that window (your synced Awin feed — network-level totals, not split by LinkHexa publisher). The smaller line
+              under <strong className="text-zinc-400">Conversions</strong> shows how many rows already have a{" "}
+              <code className="text-zinc-500">publisher_id</code>. For <strong className="text-zinc-400">who earned what</strong>,
+              use the <strong className="text-zinc-400">Publishers — sales &amp; commission</strong> table below (rollup /
+              attributed only).
             </p>
             {stats.awinSyncOnDashboardLoad?.skippedReason && !stats.awinSyncOnDashboardLoad.ran && (
               <p className="mt-2 text-xs text-zinc-500">{stats.awinSyncOnDashboardLoad.skippedReason}</p>

@@ -3,9 +3,27 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { requireApprovedPublisher } from "@/lib/publisher-session";
 import { fetchAwinTransactionsRange, parseAwinTransactionRow } from "@/lib/awin/transactions";
 import { isAwinConfigured } from "@/lib/awin/client";
+import { matchKnownSlug } from "@/lib/awin/slug-match";
+import { collectAttributedDbTransactions, publisherSlugSet } from "@/lib/publisher/collect-attributed-db-transactions";
 
 const MAX_LIMIT = 50;
 const MAX_RANGE_MS = 31 * 24 * 60 * 60 * 1000;
+const PROGRAMME_ID_IN_CHUNK = 200;
+
+async function fetchProgrammeNameMap(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  advertiserIds: (number | null | undefined)[]
+): Promise<Map<number, string>> {
+  const ids = [...new Set(advertiserIds.filter((x): x is number => typeof x === "number" && Number.isFinite(x)))];
+  const out = new Map<number, string>();
+  for (let i = 0; i < ids.length; i += PROGRAMME_ID_IN_CHUNK) {
+    const chunk = ids.slice(i, i + PROGRAMME_ID_IN_CHUNK);
+    const { data, error } = await supabase.from("awin_programmes").select("programme_id, name").in("programme_id", chunk);
+    if (error) throw new Error(error.message);
+    for (const r of data ?? []) out.set(Number(r.programme_id), String(r.name ?? ""));
+  }
+  return out;
+}
 
 function parseDateBoundary(s: string | null, endOfDay: boolean): Date | null {
   if (!s?.trim()) return null;
@@ -19,13 +37,8 @@ function parseDateBoundary(s: string | null, endOfDay: boolean): Date | null {
   return d;
 }
 
-async function publisherSlugSet(supabase: ReturnType<typeof createServerSupabaseClient>, userId: string): Promise<Set<string>> {
-  const { data } = await supabase.from("publisher_go_links").select("slug").eq("publisher_id", userId);
-  return new Set((data ?? []).map((r: { slug?: string }) => String(r.slug ?? "").trim()).filter(Boolean));
-}
-
 /**
- * GET: This publisher's attributed rows from awin_transactions.
+ * GET: This publisher's rows from awin_transactions — attributed to them, or unattributed but matching their go-link slug / click ref.
  */
 export async function GET(request: Request) {
   const pub = await requireApprovedPublisher();
@@ -41,28 +54,32 @@ export async function GET(request: Request) {
 
   const supabase = createServerSupabaseClient();
 
-  let q = supabase
-    .from("awin_transactions")
-    .select(
-      "awin_transaction_id, advertiser_id, commission_status, commission_amount, commission_currency, sale_amount, sale_currency, transaction_date, click_ref, go_link_slug, synced_at",
-      { count: "exact" }
-    )
-    .eq("publisher_id", pub.userId)
-    .order("transaction_date", { ascending: false });
+  let rows: Awaited<ReturnType<typeof collectAttributedDbTransactions>>;
+  try {
+    rows = await collectAttributedDbTransactions(supabase, pub.userId, fromD, toD);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Query failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 
-  if (fromD) q = q.gte("transaction_date", fromD.toISOString());
-  if (toD) q = q.lte("transaction_date", toD.toISOString());
+  const total = rows.length;
+  const page = rows.slice(offset, offset + limit).map(({ publisher_id: _p, ...rest }) => rest);
 
-  const { data, error, count } = await q.range(offset, offset + limit - 1);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  let programmeNames = new Map<number, string>();
+  try {
+    programmeNames = await fetchProgrammeNameMap(supabase, page.map((r) => r.advertiser_id));
+  } catch {
+    // Non-fatal.
   }
 
   return NextResponse.json({
     source: "database" as const,
-    rows: data ?? [],
-    total: count ?? 0,
+    rows: page.map((r) => {
+      const adv = Number(r.advertiser_id ?? NaN);
+      const advertiser_name = Number.isFinite(adv) ? programmeNames.get(adv) ?? null : null;
+      return { ...r, advertiser_name };
+    }),
+    total,
     limit,
     offset,
   });
@@ -126,19 +143,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 
+  const slugSet = slugs;
   const parsed = raw
     .map(parseAwinTransactionRow)
     .filter((x): x is NonNullable<typeof x> => x != null)
-    .filter((row) => {
-      const ref = row.clickRef?.trim();
-      return Boolean(ref && slugs.has(ref));
-    });
+    .filter((row) => matchKnownSlug(null, row.clickRef, slugSet) != null);
+
+  let programmeNames = new Map<number, string>();
+  try {
+    programmeNames = await fetchProgrammeNameMap(supabase, parsed.map((r) => r.advertiserId));
+  } catch {
+    // Non-fatal.
+  }
 
   return NextResponse.json({
     source: "awin_api" as const,
     rangeStart: start.toISOString(),
     rangeEnd: end.toISOString(),
     count: parsed.length,
-    rows: parsed,
+    rows: parsed.map((r) => ({
+      ...r,
+      advertiserName: r.advertiserId != null ? programmeNames.get(r.advertiserId) ?? null : null,
+    })),
   });
 }

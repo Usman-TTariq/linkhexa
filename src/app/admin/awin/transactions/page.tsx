@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import AwinTransactionsContent from "./AwinTransactionsContent";
 
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <AdminShell>
-      <AwinTransactionsContent />
+      <Suspense fallback={<p className="text-sm text-zinc-500">Loading…</p>}>
+        <AwinTransactionsContent />
+      </Suspense>
     </AdminShell>
   );
 }
