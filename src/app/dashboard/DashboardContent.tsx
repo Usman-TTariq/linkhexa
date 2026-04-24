@@ -24,6 +24,8 @@ export default function DashboardContent() {
     commissionLast30,
     saleLast30,
     performanceChartSeries,
+    performanceChartSeriesPrevious,
+    performanceRolling31Trends,
     totalLinkClicks,
     topBrandsByClicks,
     newestLinks,
@@ -84,6 +86,8 @@ export default function DashboardContent() {
       earningsLoading={earningsLoading}
       earningsError={earningsError}
       performanceChartSeries={performanceChartSeries}
+      performanceChartSeriesPrevious={performanceChartSeriesPrevious}
+      performanceRolling31Trends={performanceRolling31Trends}
       goLinksLoading={goLinksLoading}
       goLinksError={goLinksError}
       goLinks={goLinks}

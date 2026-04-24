@@ -17,14 +17,65 @@ export function baseTargetUrl(display: string | null, clickThrough: string | nul
 
 /**
  * Append clickref for legacy awclick URLs when Link Builder is unavailable.
- * Skips if a clickref-like param is already present.
+ * Skips if primary `clickref` is already set to a non-empty value.
+ * (Awin URLs often include `clickref=` with no value — we overwrite that with the slug.)
  */
 export function appendAwinClickRefToUrl(url: string, clickRef: string): string {
   try {
     const u = new URL(url.trim());
-    const lowerKeys = [...u.searchParams.keys()].map((k) => k.toLowerCase());
-    if (lowerKeys.some((k) => k === "clickref")) return u.href;
+    let hasNonEmpty = false;
+    for (const [k, v] of u.searchParams.entries()) {
+      if (k.toLowerCase() === "clickref" && v.trim()) {
+        hasNonEmpty = true;
+        break;
+      }
+    }
+    if (hasNonEmpty) return u.href;
+    for (const key of [...u.searchParams.keys()]) {
+      if (key.toLowerCase() === "clickref") u.searchParams.delete(key);
+    }
     u.searchParams.set("clickref", clickRef);
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
+/** True for Awin-hosted click-through URLs we can attach a publisher `clickref` to. */
+export function isLikelyAwinTrackedClickUrl(url: string): boolean {
+  try {
+    const u = new URL(url.trim());
+    const host = u.hostname.toLowerCase();
+    const path = u.pathname.toLowerCase();
+    if (host.includes("awin") && (path.includes("cread") || path.includes("awclick"))) return true;
+    if (u.searchParams.has("awinaffid") && u.searchParams.has("awinmid")) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Ensures primary `clickref` on Awin `cread.php` / `awclick` URLs is set to the go-link `slug`
+ * when it is missing or blank. Fixes deep-link rows that stored `clickref=` with no value.
+ */
+export function ensureAwinPrimaryClickRef(url: string, slug: string): string {
+  const ref = slug.trim();
+  if (!ref || !isLikelyAwinTrackedClickUrl(url)) return url;
+  try {
+    const u = new URL(url.trim());
+    let primary = "";
+    for (const [k, v] of u.searchParams.entries()) {
+      if (k.toLowerCase() === "clickref") {
+        primary = v;
+        break;
+      }
+    }
+    if (primary.trim()) return url;
+    for (const key of [...u.searchParams.keys()]) {
+      if (key.toLowerCase() === "clickref") u.searchParams.delete(key);
+    }
+    u.searchParams.set("clickref", ref);
     return u.href;
   } catch {
     return url;

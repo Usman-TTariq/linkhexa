@@ -209,7 +209,15 @@ export default function AdminDashboardOverview() {
                       setSyncMessage(data.error ?? "Sync failed");
                       return;
                     }
-                    setSyncMessage(`Synced ${data.fetched ?? 0} rows, ${data.upserted ?? 0} saved.`);
+                    const fb = Number(data.fallbackAttributed ?? 0);
+                    const still = Number(data.stillWithoutClickRef ?? 0);
+                    setSyncMessage(
+                      `Synced ${data.fetched ?? 0} rows, ${data.upserted ?? 0} saved.` +
+                        (fb > 0
+                          ? ` ${fb} via programme fallback (click-weighted; Awin had no click ref).`
+                          : "") +
+                        ` Still no click_ref: ${still}.`
+                    );
                     const dashRes = await fetch("/api/admin/dashboard-stats", { credentials: "include" });
                     const pubRes = await fetch("/api/admin/publishers-earnings?days=30", { credentials: "include" });
                     if (dashRes.ok) setStats((await dashRes.json()) as DashboardStats);

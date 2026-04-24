@@ -284,6 +284,51 @@ export function usePublisherDashboardData() {
     return out;
   }, [earnings, primaryCurrency]);
 
+  /** Prior 31 UTC days (same length as `performanceChartSeries`), aligned by index for “current vs previous” overlay */
+  const performanceChartSeriesPrevious = useMemo(() => {
+    if (!earnings) return [];
+    const end = ymdAddDays(utcTodayYmd(), -31);
+    const start = ymdAddDays(end, -30);
+    const out: { date: string; commission: number; sale: number; transactions: number }[] = [];
+    for (let d = start; d <= end; d = ymdAddDays(d, 1)) {
+      const dayRows = earnings.series.filter((s) => s.date === d && s.currency === primaryCurrency);
+      out.push({
+        date: d,
+        commission: dayRows.reduce((a, s) => a + s.commission, 0),
+        sale: dayRows.reduce((a, s) => a + s.sale, 0),
+        transactions: dayRows.reduce((a, s) => a + s.transactions, 0),
+      });
+    }
+    return out;
+  }, [earnings, primaryCurrency]);
+
+  const performanceRolling31Trends = useMemo(() => {
+    const curr = performanceChartSeries;
+    const prev = performanceChartSeriesPrevious;
+    if (curr.length === 0 || prev.length === 0) return null;
+    const sum = (rows: typeof curr) =>
+      rows.reduce(
+        (a, r) => ({
+          commission: a.commission + r.commission,
+          sale: a.sale + r.sale,
+          transactions: a.transactions + r.transactions,
+        }),
+        { commission: 0, sale: 0, transactions: 0 }
+      );
+    const a = sum(curr);
+    const b = sum(prev);
+    const pct = (x: number, y: number): number | null => {
+      if (y === 0 && x === 0) return 0;
+      if (y === 0) return null;
+      return ((x - y) / y) * 100;
+    };
+    return {
+      commissionPct: pct(a.commission, b.commission),
+      salePct: pct(a.sale, b.sale),
+      transactionsPct: pct(a.transactions, b.transactions),
+    };
+  }, [performanceChartSeries, performanceChartSeriesPrevious]);
+
   const displayName = profile?.username?.trim() || profile?.email?.split("@")[0] || "there";
   const isPublisher = profile?.role === "publisher";
 
@@ -341,6 +386,8 @@ export function usePublisherDashboardData() {
     saleLast30,
     sparklinePoints,
     performanceChartSeries,
+    performanceChartSeriesPrevious,
+    performanceRolling31Trends,
     totalLinkClicks,
     currencyBreakdown,
     topBrandsByClicks,

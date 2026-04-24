@@ -51,9 +51,15 @@ export default function AwinActionsContent() {
         setError(typeof data.error === "string" ? data.error : "Sync failed.");
         return;
       }
+      const fb = Number(data.fallbackAttributed ?? 0);
+      const still = Number(data.stillWithoutClickRef ?? 0);
       setMessage(
         `Synced OK. Fetched ${data.fetched ?? 0}, saved ${data.upserted ?? 0}. ` +
-          `Attributed ${data.attributed ?? 0}, unmatched click refs ${data.unmatched ?? 0}.`
+          `Attributed ${data.attributed ?? 0}, unmatched click refs ${data.unmatched ?? 0}.` +
+          (fb > 0
+            ? ` Filled ${fb} row(s) via programme fallback (click-weighted publisher when Awin had no click ref).`
+            : "") +
+          ` Rows still without click_ref: ${still}.`
       );
     } catch {
       setError("Sync request failed.");

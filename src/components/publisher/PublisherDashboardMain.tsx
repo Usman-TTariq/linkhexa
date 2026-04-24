@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useId, useMemo } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import PublisherSupportChat from "@/components/publisher/PublisherSupportChat";
 import type { GoLinkSummary } from "@/components/publisher/usePublisherDashboardData";
 
@@ -28,6 +28,41 @@ function formatCompactMoney(n: number, currency: string): string {
   }
 }
 
+/** Smooth Catmull-Rom–style cubic path through points (open curve). */
+function smoothPathFromPoints(pts: { x: number; y: number }[], tension = 0.22): string {
+  if (pts.length === 0) return "";
+  if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+  if (pts.length === 2) return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`;
+  const t = tension;
+  const d: string[] = [`M ${pts[0].x} ${pts[0].y}`];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i === 0 ? 0 : i - 1];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const cp1x = p1.x + (p2.x - p0.x) * t;
+    const cp1y = p1.y + (p2.y - p0.y) * t;
+    const cp2x = p2.x - (p3.x - p1.x) * t;
+    const cp2y = p2.y - (p3.y - p1.y) * t;
+    d.push(`C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
+  }
+  return d.join(" ");
+}
+
+function areaPathUnderCommission(commPts: { x: number; y: number }[], bottomY: number, tension: number): string {
+  if (commPts.length === 0) return "";
+  const top = smoothPathFromPoints(commPts, tension);
+  const tail = top.replace(/^M\s+[\d.-]+\s+[\d.-]+/, "");
+  return `M ${commPts[0].x} ${bottomY} L ${commPts[0].x} ${commPts[0].y}${tail} L ${commPts[commPts.length - 1].x} ${bottomY} Z`;
+}
+
+function formatRollingTrendPct(p: number | null): string {
+  if (p === null) return "—";
+  const digits = Math.abs(p) >= 10 ? 1 : 2;
+  const s = p > 0 ? "+" : "";
+  return `${s}${p.toFixed(digits)}%`;
+}
+
 function axisTickMoney(value: number, currency: string, scaleMax: number): string {
   if (!Number.isFinite(value) || Math.abs(value) < 1e-12) {
     try {
@@ -50,59 +85,117 @@ function axisTickMoney(value: number, currency: string, scaleMax: number): strin
   }
 }
 
-/** Last-31-days commission + sales (same currency scale). */
+/** Last-31-days commission + gross sales — dual Y scale, smooth curves, prior-31 commission overlay, hover tooltip. */
 function PerformanceEarningsChart({
   series,
+  previousSeries,
   currency,
 }: {
   series: { date: string; commission: number; sale: number }[];
+  previousSeries: { date: string; commission: number; sale: number }[];
   currency: string;
 }) {
   const fillId = useId().replace(/:/g, "");
+  const glowId = useId().replace(/:/g, "");
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [hover, setHover] = useState<number | null>(null);
 
   const w = 720;
-  const h = 220;
-  const padL = 52;
-  const padR = 16;
-  const padT = 28;
-  const padB = 36;
+  const h = 248;
+  const padL = 56;
+  const padR = 56;
+  const padT = 12;
+  const padB = 40;
+  const curveTension = 0.24;
+
+  const prevAligned = useMemo(() => {
+    if (previousSeries.length >= series.length) return previousSeries.slice(0, series.length);
+    return [
+      ...previousSeries,
+      ...Array.from({ length: series.length - previousSeries.length }, () => ({
+        date: "",
+        commission: 0,
+        sale: 0,
+      })),
+    ];
+  }, [series, previousSeries]);
 
   const chart = useMemo(() => {
     if (series.length === 0) return null;
     const maxComm = Math.max(0, ...series.map((s) => s.commission));
+    const maxPrevComm = Math.max(0, ...prevAligned.map((s) => s.commission));
     const maxSale = Math.max(0, ...series.map((s) => s.sale));
-    const maxY = Math.max(maxComm, maxSale, 1e-12);
+    const leftMax = Math.max(maxComm, maxPrevComm, 1e-12);
+    const scaleSale = Math.max(maxSale, 1e-12);
     const innerW = w - padL - padR;
     const innerH = h - padT - padB;
     const n = Math.max(series.length, 1);
+    const bottomY = h - padB;
 
-    const commPts = series.map((s, i) => {
-      const x = padL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
-      const y = padT + innerH - (s.commission / maxY) * innerH;
-      return { x, y };
-    });
-    const salePts = series.map((s, i) => {
-      const x = padL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
-      const y = padT + innerH - (s.sale / maxY) * innerH;
-      return { x, y };
-    });
+    const xAt = (i: number) => padL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
 
-    const commLine = commPts.map((p) => `${p.x},${p.y}`).join(" ");
-    const saleLine = salePts.map((p) => `${p.x},${p.y}`).join(" ");
-    const area =
-      maxComm <= 0 || commPts.length === 0
-        ? ""
-        : `M ${commPts[0].x},${h - padB} L ${commPts.map((p) => `${p.x},${p.y}`).join(" ")} L ${commPts[commPts.length - 1].x},${h - padB} Z`;
+    const commPts = series.map((s, i) => ({
+      x: xAt(i),
+      y: padT + innerH - (s.commission / leftMax) * innerH,
+    }));
+    const prevCommPts = prevAligned.map((s, i) => ({
+      x: xAt(i),
+      y: padT + innerH - (s.commission / leftMax) * innerH,
+    }));
+    const salePts = series.map((s, i) => ({
+      x: xAt(i),
+      y: padT + innerH - (s.sale / scaleSale) * innerH,
+    }));
+
+    const commPath = maxComm > 0 ? smoothPathFromPoints(commPts, curveTension) : "";
+    const prevCommPath = maxPrevComm > 0 ? smoothPathFromPoints(prevCommPts, curveTension) : "";
+    const salePath = maxSale > 0 ? smoothPathFromPoints(salePts, curveTension) : "";
+    const areaPath = maxComm > 0 && commPts.length > 0 ? areaPathUnderCommission(commPts, bottomY, curveTension) : "";
 
     const tickCount = 4;
-    const tickVals = Array.from({ length: tickCount + 1 }, (_, i) => (maxY * i) / tickCount);
+    const gridRows = Array.from({ length: tickCount + 1 }, (_, i) => {
+      const fracFromBottom = i / tickCount;
+      const y = padT + innerH - fracFromBottom * innerH;
+      const vComm = leftMax * fracFromBottom;
+      const vSale = maxSale * fracFromBottom;
+      return { y, vComm, vSale };
+    });
 
-    return { maxComm, maxSale, maxY, commLine, saleLine, areaPath: area, tickVals };
-  }, [series, h, padB, padL, padR, padT, w]);
+    return {
+      maxComm,
+      maxPrevComm,
+      maxSale,
+      leftMax,
+      scaleSale,
+      commPts,
+      prevCommPts,
+      salePts,
+      commPath,
+      prevCommPath,
+      salePath,
+      areaPath,
+      gridRows,
+      bottomY,
+      xAt,
+      padL,
+      innerW,
+      n,
+    };
+  }, [series, prevAligned, h, padB, padL, padR, padT, w]);
+
+  const onSvgPointer = (clientX: number) => {
+    const svg = svgRef.current;
+    if (!svg || !chart) return;
+    const rect = svg.getBoundingClientRect();
+    const vx = ((clientX - rect.left) / Math.max(rect.width, 1)) * w;
+    const { padL: pl, innerW: iw, n: nPts } = chart;
+    const ix = Math.max(0, Math.min(nPts - 1, Math.round(((vx - pl) / Math.max(iw, 1)) * (nPts - 1))));
+    setHover(ix);
+  };
 
   if (series.length === 0) {
     return (
-      <div className="flex h-[220px] flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-zinc-950/50 px-4 text-center text-sm text-zinc-500">
+      <div className="flex h-[248px] flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-zinc-950/50 px-4 text-center text-sm text-zinc-500">
         <p>No chart data in this window.</p>
       </div>
     );
@@ -110,7 +203,7 @@ function PerformanceEarningsChart({
 
   if (!chart || (chart.maxComm <= 0 && chart.maxSale <= 0)) {
     return (
-      <div className="flex h-[220px] flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-zinc-950/50 px-4 text-center text-sm text-zinc-500">
+      <div className="flex h-[248px] flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-zinc-950/50 px-4 text-center text-sm text-zinc-500">
         <p className="text-zinc-400">No attributed commission or sales in the last 31 days.</p>
         <p className="max-w-md text-xs leading-relaxed text-zinc-500">
           Link clicks on your short links are counted here, but the chart only uses <strong className="text-zinc-400">synced Awin</strong>{" "}
@@ -120,79 +213,190 @@ function PerformanceEarningsChart({
     );
   }
 
-  const { maxY, commLine, saleLine, areaPath, tickVals, maxSale, maxComm } = chart;
+  const { commPath, prevCommPath, salePath, areaPath, gridRows, maxSale, maxComm, maxPrevComm, commPts, salePts, prevCommPts, bottomY, n } =
+    chart;
+  const hx = hover !== null ? commPts[hover]?.x ?? null : null;
+  const dayLabel = hover !== null ? series[hover]?.date?.slice(8, 10) : null;
 
   return (
-    <div>
-      <div className="mb-1 flex flex-wrap items-center justify-end gap-3 px-1 text-[10px] text-zinc-500">
-        {maxComm > 0 && (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-0.5 w-4 rounded-full bg-indigo-400" aria-hidden />
-            Commission
-          </span>
-        )}
-        {maxSale > 0 && (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-0.5 w-4 rounded-full border border-dashed border-teal-400/90 bg-transparent" aria-hidden />
-            Sales
-          </span>
-        )}
+    <div className="relative">
+      <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-zinc-400">
+          {maxComm > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="size-1.5 shrink-0 rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.65)]" aria-hidden />
+              Commission <span className="text-zinc-600">(current · left)</span>
+            </span>
+          )}
+          {maxPrevComm > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-px w-3.5 border-t border-dashed border-zinc-500" aria-hidden />
+              Commission <span className="text-zinc-600">(prior 31d · left)</span>
+            </span>
+          )}
+          {maxSale > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-px w-3.5 border-t border-dashed border-teal-400/90" aria-hidden />
+              Gross sales <span className="text-zinc-600">(current · right)</span>
+            </span>
+          )}
+        </div>
       </div>
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-[220px] w-full" preserveAspectRatio="none" aria-hidden>
+
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${w} ${h}`}
+        className="h-[min(280px,42vw)] w-full min-h-[220px] touch-none select-none"
+        preserveAspectRatio="none"
+        aria-hidden
+        onMouseLeave={() => setHover(null)}
+        onMouseMove={(e) => onSvgPointer(e.clientX)}
+        onTouchStart={(e) => {
+          const t = e.touches[0];
+          if (t) onSvgPointer(t.clientX);
+        }}
+        onTouchMove={(e) => {
+          const t = e.touches[0];
+          if (t) onSvgPointer(t.clientX);
+        }}
+        onTouchEnd={() => setHover(null)}
+      >
         <defs>
           <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(99,102,241)" stopOpacity="0.28" />
+            <stop offset="0%" stopColor="rgb(129,140,248)" stopOpacity="0.42" />
+            <stop offset="55%" stopColor="rgb(99,102,241)" stopOpacity="0.12" />
             <stop offset="100%" stopColor="rgb(99,102,241)" stopOpacity="0" />
           </linearGradient>
+          <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
-        {tickVals.map((tv, i) => {
-          const innerH = h - padT - padB;
-          const y = padT + innerH - (tv / maxY) * innerH;
-          return (
-            <g key={i}>
-              <line x1={padL} y1={y} x2={w - padR} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-              <text x={2} y={y + 4} className="fill-zinc-500" style={{ fontSize: 9 }}>
-                {axisTickMoney(tv, currency, maxY)}
+        {gridRows.map((row, i) => (
+          <g key={i}>
+            <line x1={padL} y1={row.y} x2={w - padR} y2={row.y} stroke="rgba(255,255,255,0.055)" strokeWidth="1" />
+            {maxComm + maxPrevComm > 0 && (
+              <text x={2} y={row.y + 4} className="fill-indigo-200/88" style={{ fontSize: 9 }}>
+                {axisTickMoney(row.vComm, currency, chart.leftMax)}
               </text>
-            </g>
-          );
-        })}
+            )}
+            {maxSale > 0 && (
+              <text x={w - 2} y={row.y + 4} textAnchor="end" className="fill-teal-300/88" style={{ fontSize: 9 }}>
+                {axisTickMoney(row.vSale, currency, maxSale)}
+              </text>
+            )}
+          </g>
+        ))}
         {areaPath && <path d={areaPath} fill={`url(#${fillId})`} />}
-        {maxSale > 0 && (
-          <polyline
+        {maxPrevComm > 0 && prevCommPath && (
+          <path
+            d={prevCommPath}
             fill="none"
-            stroke="rgb(45,212,191)"
-            strokeWidth="2"
+            stroke="rgba(161,161,170,0.55)"
+            strokeWidth="1.35"
             strokeDasharray="5 4"
             strokeLinejoin="round"
             strokeLinecap="round"
-            points={saleLine}
-            opacity={0.92}
           />
         )}
-        {maxComm > 0 && (
-          <polyline
+        {maxSale > 0 && salePath && (
+          <path
+            d={salePath}
             fill="none"
-            stroke="rgb(129,140,248)"
-            strokeWidth="2.5"
+            stroke="rgb(45,212,191)"
+            strokeWidth="2"
+            strokeDasharray="6 4"
             strokeLinejoin="round"
             strokeLinecap="round"
-            points={commLine}
+            opacity={0.9}
           />
+        )}
+        {maxComm > 0 && commPath && (
+          <path
+            d={commPath}
+            fill="none"
+            stroke="rgb(165,180,252)"
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter={`url(#${glowId})`}
+          />
+        )}
+        {hover !== null && hx !== null && (
+          <line
+            x1={hx}
+            y1={padT}
+            x2={hx}
+            y2={bottomY}
+            stroke="rgba(255,255,255,0.22)"
+            strokeWidth="1"
+            strokeDasharray="4 3"
+            pointerEvents="none"
+          />
+        )}
+        {hover !== null && maxComm > 0 && (
+          <circle cx={commPts[hover].x} cy={commPts[hover].y} r={5} fill="rgb(165,180,252)" stroke="rgb(24,24,27)" strokeWidth="2" pointerEvents="none" />
+        )}
+        {hover !== null && maxSale > 0 && (
+          <circle cx={salePts[hover].x} cy={salePts[hover].y} r={4} fill="rgb(45,212,191)" stroke="rgb(24,24,27)" strokeWidth="2" pointerEvents="none" />
         )}
         {series.map((s, i) => {
           if (i % 5 !== 0 && i !== series.length - 1) return null;
-          const n = Math.max(series.length, 1);
           const innerW = w - padL - padR;
           const x = padL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
           const day = s.date.slice(8, 10);
           return (
-            <text key={`${s.date}-${i}`} x={x} y={h - 10} textAnchor="middle" className="fill-zinc-500" style={{ fontSize: 9 }}>
+            <text
+              key={`${s.date}-${i}`}
+              x={x}
+              y={h - 10}
+              textAnchor="middle"
+              className={hover === i ? "fill-zinc-200" : "fill-zinc-500"}
+              style={{ fontSize: 9 }}
+            >
               {day}
             </text>
           );
         })}
       </svg>
+
+      {hover !== null && dayLabel !== null && (
+        <div
+          className="pointer-events-none absolute z-20 min-w-[9.5rem] -translate-x-1/2 rounded-lg border border-white/12 bg-zinc-900/95 px-3 py-2.5 shadow-xl shadow-black/40 backdrop-blur-sm"
+          style={{
+            left: `${(commPts[hover].x / w) * 100}%`,
+            top: 6,
+          }}
+        >
+          <p className="text-[11px] font-semibold tabular-nums text-white">Day {dayLabel}</p>
+          <p className="mt-1.5 space-y-1 text-[10px] leading-snug text-zinc-300">
+            <span className="flex items-center gap-2">
+              <span className="size-1.5 shrink-0 rounded-full bg-indigo-400" />
+              <span className="text-zinc-500">Commission</span>
+              <span className="ml-auto font-mono tabular-nums text-indigo-200">{formatMoney(series[hover].commission, currency)}</span>
+            </span>
+            {maxPrevComm > 0 && (
+              <span className="flex items-center gap-2">
+                <span className="h-px w-2.5 shrink-0 border-t border-dashed border-zinc-500" />
+                <span className="text-zinc-500">Prior 31d</span>
+                <span className="ml-auto font-mono tabular-nums text-zinc-400">
+                  {formatMoney(prevAligned[hover]?.commission ?? 0, currency)}
+                </span>
+              </span>
+            )}
+            {maxSale > 0 && (
+              <span className="flex items-center gap-2">
+                <span className="h-px w-2.5 shrink-0 border-t border-dashed border-teal-400" />
+                <span className="text-zinc-500">Gross sales</span>
+                <span className="ml-auto font-mono tabular-nums text-teal-300/95">{formatMoney(series[hover].sale, currency)}</span>
+              </span>
+            )}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -210,6 +414,12 @@ type MainProps = {
   earningsLoading: boolean;
   earningsError: string | null;
   performanceChartSeries: { date: string; commission: number; sale: number; transactions: number }[];
+  performanceChartSeriesPrevious: { date: string; commission: number; sale: number; transactions: number }[];
+  performanceRolling31Trends: {
+    commissionPct: number | null;
+    salePct: number | null;
+    transactionsPct: number | null;
+  } | null;
   goLinksLoading: boolean;
   goLinksError: string | null;
   goLinks: GoLinkSummary[];
@@ -231,6 +441,8 @@ export default function PublisherDashboardMain({
   earningsLoading,
   earningsError,
   performanceChartSeries,
+  performanceChartSeriesPrevious,
+  performanceRolling31Trends,
   goLinksLoading,
   goLinksError,
   goLinks,
@@ -335,9 +547,11 @@ export default function PublisherDashboardMain({
             <div className={cardBase}>
               <h2 className="text-lg font-semibold text-white">Performance</h2>
               <p className="mt-1 text-xs text-zinc-500">
-                Totals use your reporting window (synced Awin rows attributed to your link slugs). Chart: last 31 days in{" "}
-                {primaryCurrency} — <span className="text-indigo-300/90">commission</span> (solid) and{" "}
-                <span className="text-teal-400/90">sales</span> (dashed) share the same scale when both have data.
+                Totals use your reporting window (synced Awin rows attributed to your link slugs). Chart: last 31 UTC days in{" "}
+                {primaryCurrency} — <span className="text-indigo-300/90">commission</span> (smooth line + fill, left),{" "}
+                <span className="text-zinc-400">prior 31d commission</span> (dashed grey, same axis),{" "}
+                <span className="text-teal-400/90">gross sales</span> (dashed, right). Sales use a separate scale so commission stays
+                readable. Hover for a vertical guide and values.
               </p>
               {earningsError && (
                 <p className="mt-3 text-sm text-amber-200/90" role="alert">
@@ -371,8 +585,59 @@ export default function PublisherDashboardMain({
                   </div>
                 ))}
               </div>
-              <div className="mt-6 rounded-xl border border-white/5 bg-zinc-950/40 px-2 pt-3">
-                <PerformanceEarningsChart series={performanceChartSeries} currency={primaryCurrency} />
+              {performanceRolling31Trends && (
+                <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-zinc-500">
+                  <span className="font-medium text-zinc-400">Rolling 31d vs prior 31d</span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="text-zinc-600">Commission</span>
+                    <span
+                      className={
+                        performanceRolling31Trends.commissionPct === null
+                          ? "text-zinc-400"
+                          : performanceRolling31Trends.commissionPct >= 0
+                            ? "text-emerald-400/90"
+                            : "text-rose-400/90"
+                      }
+                    >
+                      {formatRollingTrendPct(performanceRolling31Trends.commissionPct)}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="text-zinc-600">Sales</span>
+                    <span
+                      className={
+                        performanceRolling31Trends.salePct === null
+                          ? "text-zinc-400"
+                          : performanceRolling31Trends.salePct >= 0
+                            ? "text-emerald-400/90"
+                            : "text-rose-400/90"
+                      }
+                    >
+                      {formatRollingTrendPct(performanceRolling31Trends.salePct)}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="text-zinc-600">Transactions</span>
+                    <span
+                      className={
+                        performanceRolling31Trends.transactionsPct === null
+                          ? "text-zinc-400"
+                          : performanceRolling31Trends.transactionsPct >= 0
+                            ? "text-emerald-400/90"
+                            : "text-rose-400/90"
+                      }
+                    >
+                      {formatRollingTrendPct(performanceRolling31Trends.transactionsPct)}
+                    </span>
+                  </span>
+                </p>
+              )}
+              <div className="mt-4 rounded-xl border border-white/5 bg-zinc-950/40 px-2 pb-2 pt-3">
+                <PerformanceEarningsChart
+                  series={performanceChartSeries}
+                  previousSeries={performanceChartSeriesPrevious}
+                  currency={primaryCurrency}
+                />
               </div>
               <p className="mt-3 text-center text-[11px] text-zinc-500">
                 Day labels are UTC (dd of month). Clicks on your links are not plotted here — only attributed Awin commission/sale

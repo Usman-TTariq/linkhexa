@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { destinationsDiffer, resolveTrackedDestination } from "@/lib/go-link-target";
+import {
+  destinationsDiffer,
+  ensureAwinPrimaryClickRef,
+  resolveTrackedDestination,
+} from "@/lib/go-link-target";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -40,6 +44,12 @@ export async function GET(_request: Request, { params }: Params) {
       await supabase.from("publisher_go_links").update({ target_url: canonical }).eq("slug", slug);
       redirectUrl = canonical;
     }
+  }
+
+  const withClickRef = ensureAwinPrimaryClickRef(redirectUrl, slug);
+  if (withClickRef !== redirectUrl) {
+    redirectUrl = withClickRef;
+    void supabase.from("publisher_go_links").update({ target_url: withClickRef }).eq("slug", slug);
   }
 
   const { error: incErr } = await supabase.rpc("increment_publisher_go_link_click", { p_slug: slug });

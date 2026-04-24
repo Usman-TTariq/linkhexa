@@ -114,15 +114,64 @@ function parseMoney(obj: unknown): { amount: number; currency: string } {
   return { amount, currency };
 }
 
-function extractClickRef(raw: Record<string, unknown>): string | null {
-  const cr = raw.clickRefs ?? raw.clickrefs;
-  if (!cr || typeof cr !== "object") return null;
-  const o = cr as Record<string, unknown>;
-  for (const k of ["clickRef", "clickRef2", "clickRef3", "clickRef4", "clickRef5", "clickRef6"]) {
-    const v = o[k];
-    if (typeof v === "string" && v.trim()) return v.trim();
+const GO_SHORT_SLUG_RE = /\/go\/short\/([A-Za-z0-9]{6,32})\b/i;
+
+/** If any Awin string field contains our short-link path, use that slug as click ref. */
+function inferClickRefFromRowStrings(raw: Record<string, unknown>): string | null {
+  const scan = (s: string): string | null => {
+    const m = s.match(GO_SHORT_SLUG_RE);
+    return m?.[1] ? m[1] : null;
+  };
+  const tryField = (v: unknown): string | null => {
+    if (typeof v !== "string" || !v.trim()) return null;
+    return scan(v);
+  };
+
+  for (const key of [
+    "publisherUrl",
+    "publisher_url",
+    "url",
+    "siteUrl",
+    "site_url",
+    "advertiserUrl",
+    "advertiser_url",
+    "campaign",
+  ]) {
+    const hit = tryField(raw[key]);
+    if (hit) return hit;
+  }
+
+  const params = raw.customParameters ?? raw.custom_parameters;
+  if (Array.isArray(params)) {
+    for (const p of params) {
+      if (p && typeof p === "object") {
+        const o = p as Record<string, unknown>;
+        const hit = tryField(o.value ?? o.Value);
+        if (hit) return hit;
+      }
+    }
   }
   return null;
+}
+
+function extractClickRef(raw: Record<string, unknown>): string | null {
+  /** Some payloads put the primary ref on the row; Awin docs usually nest under `clickRefs`. */
+  for (const top of ["clickRef", "click_ref"]) {
+    const v = raw[top];
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+
+  const cr = raw.clickRefs ?? raw.clickrefs;
+  /** Awin often sends `clickRefs: null` when refs are withheld or not passed on the click. */
+  if (cr != null && typeof cr === "object") {
+    const o = cr as Record<string, unknown>;
+    for (const k of ["clickRef", "clickRef2", "clickRef3", "clickRef4", "clickRef5", "clickRef6"]) {
+      const v = o[k];
+      if (typeof v === "string" && v.trim()) return v.trim();
+    }
+  }
+
+  return inferClickRefFromRowStrings(raw);
 }
 
 export function parseAwinTransactionRow(row: unknown): ParsedAwinTransaction | null {
@@ -143,12 +192,16 @@ export function parseAwinTransactionRow(row: unknown): ParsedAwinTransaction | n
       : new Date().toISOString();
 
   const adv = r.advertiserId ?? r.advertiser_id;
-  const advertiserId =
-    typeof adv === "number"
-      ? adv
-      : typeof adv === "string" && adv.trim()
-        ? Number(adv)
-        : null;
+  let advertiserId: number | null = null;
+  if (typeof adv === "number" && Number.isFinite(adv)) {
+    advertiserId = adv;
+  } else if (typeof adv === "string" && adv.trim()) {
+    const n = Number(adv.trim());
+    advertiserId = Number.isFinite(n) ? n : null;
+  } else if (typeof adv === "bigint") {
+    const n = Number(adv);
+    advertiserId = Number.isFinite(n) ? n : null;
+  }
 
   const commissionStatus =
     typeof r.commissionStatus === "string"
