@@ -208,7 +208,15 @@ export default function AwinTransactionsContent() {
         <Link href="/admin/awin/actions" className="text-teal-400 hover:underline">
           Sync transactions
         </Link>
-        .
+        . Rows with no publisher after sync live under{" "}
+        <Link href="/admin/awin/lost-transactions" className="font-medium text-teal-400 hover:underline">
+          Lost transactions
+        </Link>{" "}
+        (no publisher) or{" "}
+        <Link href="/admin/awin/all-transactions" className="font-medium text-teal-400 hover:underline">
+          All transactions (assign / change)
+        </Link>{" "}
+        — paginated, manual assign.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-2 border-b border-white/10 pb-3">

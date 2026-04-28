@@ -14,6 +14,8 @@ const awinApiNav = [
   { href: "/admin/awin/connection", label: "Connection" },
   { href: "/admin/awin/programs", label: "Programs" },
   { href: "/admin/awin/transactions", label: "Sales / transactions" },
+  { href: "/admin/awin/lost-transactions", label: "Lost transactions" },
+  { href: "/admin/awin/all-transactions", label: "All transactions (assign)" },
   { href: "/admin/awin/campaigns", label: "Campaigns" },
   { href: "/admin/awin/reports", label: "Reports" },
   { href: "/admin/awin/actions", label: "Actions" },

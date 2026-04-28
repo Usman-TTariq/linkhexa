@@ -40,7 +40,7 @@ function parseDateBoundary(s: string | null, endOfDay: boolean): Date | null {
 
 /**
  * GET: Paginated rows from `awin_transactions` (after sync).
- * Query: limit, offset, from, to (YYYY-MM-DD or ISO), attributedOnly=1
+ * Query: limit, offset, from, to (YYYY-MM-DD or ISO), attributedOnly=1, lostOnly=1 (publisher_id is null; wins over attributedOnly)
  */
 export async function GET(request: Request) {
   const err = requireAdmin(request);
@@ -49,7 +49,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const limit = Math.min(MAX_LIMIT, Math.max(1, Number(url.searchParams.get("limit")) || 50));
   const offset = Math.max(0, Number(url.searchParams.get("offset")) || 0);
-  const attributedOnly = url.searchParams.get("attributedOnly") === "1";
+  const lostOnly = url.searchParams.get("lostOnly") === "1";
+  const attributedOnly = !lostOnly && url.searchParams.get("attributedOnly") === "1";
   const goLinkSlugRaw = url.searchParams.get("goLinkSlug")?.trim() ?? "";
   /** Tracking slugs are alphanumeric (see go-links generator); reject anything else. */
   const goLinkSlug = /^[A-Za-z0-9]{6,32}$/.test(goLinkSlugRaw) ? goLinkSlugRaw : "";
@@ -68,7 +69,8 @@ export async function GET(request: Request) {
 
   if (fromD) q = q.gte("transaction_date", fromD.toISOString());
   if (toD) q = q.lte("transaction_date", toD.toISOString());
-  if (attributedOnly) q = q.not("publisher_id", "is", null);
+  if (lostOnly) q = q.is("publisher_id", null);
+  else if (attributedOnly) q = q.not("publisher_id", "is", null);
   if (goLinkSlug) {
     q = q.or(`go_link_slug.eq.${goLinkSlug},click_ref.ilike.%${goLinkSlug}%`);
   }
@@ -108,7 +110,8 @@ export async function GET(request: Request) {
 
     if (fromD) tq = tq.gte("transaction_date", fromD.toISOString());
     if (toD) tq = tq.lte("transaction_date", toD.toISOString());
-    if (attributedOnly) tq = tq.not("publisher_id", "is", null);
+    if (lostOnly) tq = tq.is("publisher_id", null);
+    else if (attributedOnly) tq = tq.not("publisher_id", "is", null);
 
     const commissionByCurrency: Record<string, number> = {};
     const saleByCurrency: Record<string, number> = {};

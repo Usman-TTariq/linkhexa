@@ -151,17 +151,31 @@ type UpsertTxnRow = {
   publisher_id: string | null;
   go_link_slug: string | null;
   synced_at: string;
+  manually_assigned_at?: string | null;
+  manually_assigned_by?: string | null;
 };
 
 type DbAttributionOnly = {
   click_ref: string | null;
   publisher_id: string | null;
   go_link_slug: string | null;
+  manually_assigned_at?: string | null;
+  manually_assigned_by?: string | null;
 };
 
 /** If DB already has attribution (fallback / prior sync) and Awin sends nulls, keep DB values. */
 function mergePreserveAttributionFromDb(row: UpsertTxnRow, existing: DbAttributionOnly | undefined): UpsertTxnRow {
   if (!existing) return row;
+  if (existing.manually_assigned_at) {
+    return {
+      ...row,
+      click_ref: existing.click_ref ?? row.click_ref,
+      publisher_id: existing.publisher_id ?? row.publisher_id,
+      go_link_slug: existing.go_link_slug ?? row.go_link_slug,
+      manually_assigned_at: existing.manually_assigned_at,
+      manually_assigned_by: existing.manually_assigned_by ?? null,
+    };
+  }
   const hadDb =
     (typeof existing.click_ref === "string" && existing.click_ref.trim() !== "") ||
     existing.publisher_id != null ||
@@ -285,7 +299,7 @@ export async function syncAwinTransactionsToDatabase(
     const ids = slice.map((r) => r.awin_transaction_id);
     const { data: existingRows } = await supabase
       .from("awin_transactions")
-      .select("awin_transaction_id, click_ref, publisher_id, go_link_slug")
+      .select("awin_transaction_id, click_ref, publisher_id, go_link_slug, manually_assigned_at, manually_assigned_by")
       .in("awin_transaction_id", ids);
 
     const existingById = new Map<string, DbAttributionOnly>();
@@ -295,11 +309,15 @@ export async function syncAwinTransactionsToDatabase(
         click_ref?: string | null;
         publisher_id?: string | null;
         go_link_slug?: string | null;
+        manually_assigned_at?: string | null;
+        manually_assigned_by?: string | null;
       };
       existingById.set(String(row.awin_transaction_id), {
         click_ref: row.click_ref ?? null,
         publisher_id: row.publisher_id ?? null,
         go_link_slug: row.go_link_slug ?? null,
+        manually_assigned_at: row.manually_assigned_at ?? null,
+        manually_assigned_by: row.manually_assigned_by ?? null,
       });
     }
 
@@ -338,6 +356,7 @@ export async function syncAwinTransactionsToDatabase(
           .from("awin_transactions")
           .update(payload)
           .eq("advertiser_id", advKey)
+          .is("manually_assigned_at", null)
           .select("awin_transaction_id");
         if (clickRefFilter === "null") return q.is("click_ref", null);
         return q.eq("click_ref", "");
